@@ -392,5 +392,110 @@
     "featured": "Featured",
     "bundle": "Bundle",
     "limited": "Limited"
+  },
+  "pricing": {
+    "metaTitle": "Pricing | Promto",
+    "metaDesc": "From free to premium. Explore Promto's plans for indie creators.",
+    "title": "Choose Your Plan",
+    "subtitle": "Start for free, upgrade when you need more.",
+    "trialNote": "All new accounts get a 7-day Pro trial automatically.",
+    "revenueLabel": "Revenue Share:",
+    "perMonth": "/mo",
+    "free": "Free",
+    "processing": "Processing...",
+    "cancelAnytime": "All paid plans can be cancelled anytime. New accounts get a 7-day Pro trial automatically.",
+    "usdNote": "Billed in USD. Currency conversion may apply.",
+    "revenueShare": "{pct}% revenue",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "Start selling instantly, no card needed",
+        "cta": "Get Started Free",
+        "features": ["Browse & buy prompts", "3 Playground tests/day", "Free sample downloads", "Basic Builder access", "Sell prompts (70% revenue)"],
+        "limitations": ["No premium prompt access", "Limited Playground"]
+      },
+      "pro": {
+        "name": "Pro",
+        "badge": "🔥 Popular",
+        "description": "More revenue and powerful selling tools",
+        "cta": "Start Pro",
+        "features": ["20 Playground tests/day", "Full Prompt Builder", "Prompt Remix", "New prompt alerts", "Partial premium access", "Sell prompts (80% revenue)", "Basic Creator dashboard"],
+        "limitations": []
+      },
+      "creator": {
+        "name": "Creator",
+        "badge": "💼 Creator",
+        "description": "Complete tools for full-time creators",
+        "cta": "Start Creator Plan",
+        "features": ["Everything in Pro", "Sell prompts (90% revenue)", "Full Creator Dashboard", "Creator Profile & Badge", "Priority search ranking", "AI quality analysis", "Prompt Drop (limited sales)"],
+        "limitations": []
+      },
+      "premium": {
+        "name": "Premium",
+        "badge": "⭐ Best",
+        "description": "All features + maximum revenue",
+        "cta": "Start Premium",
+        "features": ["Everything in Creator", "Sell prompts (95% revenue)", "Full prompt library", "Unlimited Playground", "Featured section priority", "Priority support", "Early beta access"],
+        "limitations": []
+      }
+    }
+  },
+  "support": {
+    "title": "Support Center",
+    "subtitle": "Find answers to your questions below",
+    "contactCards": {
+      "email": { "title": "Email Support", "desc": "support@promto.kr", "sub": "Response within 1–2 business days" },
+      "chat": { "title": "Live Chat", "desc": "Chat with us", "sub": "Weekdays 10am – 6pm KST" },
+      "inquiry": { "title": "1:1 Inquiry", "desc": "Submit a request", "sub": "Use the form below" }
+    },
+    "contactForm": {
+      "title": "Contact Us",
+      "desc": "Couldn't find the answer in the FAQ? Fill out the form below.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Jane Doe",
+      "emailLabel": "Email",
+      "categoryLabel": "Category",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Please describe your issue in detail.",
+      "submit": "Submit Inquiry",
+      "submitting": "Sending...",
+      "success": "✅ Your inquiry has been received. We'll respond within 1–2 business days.",
+      "error": "Failed to submit inquiry. Please email support@promto.kr directly.",
+      "categories": ["Purchase / Billing", "Refund Request", "Seller Inquiry", "Account Issue", "Bug Report", "Legal (Copyright / DMCA)", "Other"]
+    },
+    "faqSections": [
+      {
+        "category": "Purchase & Payment",
+        "items": [
+          { "q": "Where can I download purchased prompts?", "a": "After payment, download from My Account > Purchase History. A download link is also included in your confirmation email." },
+          { "q": "What payment methods are supported?", "a": "We support international credit/debit cards via Stripe. Additional payment methods are coming soon." },
+          { "q": "How do I request a refund?", "a": "Email support@promto.kr with your order number and reason within 7 days of purchase. Refunds may be limited after download." },
+          { "q": "How do I cancel my subscription?", "a": "Cancel anytime from My Account > Settings > Subscription. You'll retain access until the current period ends." }
+        ]
+      },
+      {
+        "category": "Selling Prompts",
+        "items": [
+          { "q": "Can anyone sell prompts?", "a": "Yes! After signing up, go to 'Start Selling' to list your products. A 30% platform fee applies per sale (you keep 70% by default)." },
+          { "q": "When are earnings paid out?", "a": "Earnings from the previous month are settled on the 1st of each month. Register your payout account in your Creator profile." },
+          { "q": "How long does prompt review take?", "a": "Typically 1–3 business days. Prompts that comply with our content policy are approved quickly." }
+        ]
+      },
+      {
+        "category": "Account & Security",
+        "items": [
+          { "q": "I forgot my password.", "a": "Click 'Forgot Password' on the login page. A reset link will be sent to your email." },
+          { "q": "How do I delete my account?", "a": "Email support@promto.kr to request account deletion. It will be processed after purchases and payouts are settled." },
+          { "q": "Can I link a social login account?", "a": "We currently support Google login. More social login options are coming soon." }
+        ]
+      },
+      {
+        "category": "Playground & AI Features",
+        "items": [
+          { "q": "How many free tests do I get in Playground?", "a": "Free accounts get 3 tests/day. Pro plan gets 20/day, and Premium gets unlimited." },
+          { "q": "What AI models does Playground support?", "a": "We currently support text generation (GPT-4o), image generation (DALL-E 3), and video prompt optimization. More AI model upgrades are planned." }
+        ]
+      }
+    ]
   }
 }

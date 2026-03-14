@@ -488,67 +488,7 @@ export function searchProducts(query: string): Prompt[] {
 
 export const reviews: Review[] = [];
 
-export const announcements: Announcement[] = [
-  {
-    id: "ann-1",
-    title: "PromptMarket 정식 오픈 안내",
-    slug: "official-launch",
-    summary: "인디 크리에이터를 위한 AI 프롬프트 마켓이 정식 오픈했습니다.",
-    content: `안녕하세요, PromptMarket 팀입니다.
-
-인디 게임 개발자, 유튜브 크리에이터, 1인 창작자를 위한 AI 프롬프트 마켓플레이스가 정식 오픈했습니다.
-
-**주요 기능:**
-- AI 프롬프트 구매 및 판매
-- Playground: 구매 전 무료 테스트
-- 무료 샘플 제공
-- Creator 마켓플레이스
-
-**앞으로 추가될 기능:**
-- Creator Leaderboard
-- Prompt Bundle
-- 구독형 라이브러리
-
-여러분의 많은 참여와 피드백을 부탁드립니다. 좋은 프롬프트 크리에이터분들의 상품 등록을 환영합니다!
-
-감사합니다.
-PromptMarket 팀`,
-    category: "notice",
-    isPinned: true,
-    createdAt: "2026-03-15T09:00:00.000Z",
-  },
-  {
-    id: "ann-2",
-    title: "Prompt Playground 업데이트: 하루 테스트 횟수 증가",
-    slug: "playground-update-v2",
-    summary: "Playground 무료 테스트 횟수가 하루 3회에서 5회로 증가했습니다.",
-    content: `Playground의 무료 테스트 횟수가 **하루 3회 → 5회**로 증가했습니다.
-
-Pro 플랜 구독 시 하루 20회까지 테스트할 수 있습니다.
-
-앞으로도 더 좋은 서비스를 제공하기 위해 노력하겠습니다. 감사합니다.`,
-    category: "update",
-    isPinned: false,
-    createdAt: "2026-03-16T09:00:00.000Z",
-  },
-  {
-    id: "ann-3",
-    title: "Early Creator 프로그램 모집",
-    slug: "early-creator-program",
-    summary: "초기 100명의 Creator에게 평생 Creator 플랜 혜택을 제공합니다.",
-    content: `PromptMarket의 성장을 함께할 **Early Creator**를 모집합니다.
-
-선정된 초기 100명의 Creator에게는 다음 혜택이 제공됩니다:
-- 판매 수익률 90% (Creator 플랜 수준)
-- Creator 대시보드 무료 이용
-- 검색 노출 우선순위 부여
-
-지금 바로 상품을 등록하고 Early Creator가 되어보세요!`,
-    category: "event",
-    isPinned: false,
-    createdAt: "2026-03-16T11:00:00.000Z",
-  },
-];
+export const announcements: Announcement[] = [];
 
 export const collections: Collection[] = [
   {

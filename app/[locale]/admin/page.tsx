@@ -48,6 +48,7 @@ export default async function AdminDashboardPage() {
     { count: todayOrders },
     { data: revenueRows },
     { count: creatorCount },
+    { count: openTickets },
   ] = await Promise.all([
     sb.from("profiles").select("*", { count: "exact", head: true }),
     sb.from("products").select("*", { count: "exact", head: true }),
@@ -61,6 +62,7 @@ export default async function AdminDashboardPage() {
       .gte("created_at", today.toISOString()),
     sb.from("orders").select("amount").eq("payment_status", "completed"),
     sb.from("creators").select("*", { count: "exact", head: true }),
+    sb.from("support_tickets").select("*", { count: "exact", head: true }).eq("status", "open"),
   ]);
 
   const totalRevenue =
@@ -114,6 +116,13 @@ export default async function AdminDashboardPage() {
           value={`$${(totalRevenue * 0.3).toFixed(2)}`}
           sub="추정치"
         />
+        <StatCard
+          icon="💬"
+          label="미처리 고객 문의"
+          value={openTickets ?? 0}
+          sub={openTickets ? "⚠️ 답변 필요" : "✅ 모두 처리됨"}
+          highlight={openTickets ? "orange" : "green"}
+        />
       </div>
 
       <div className="mt-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
@@ -122,6 +131,7 @@ export default async function AdminDashboardPage() {
           {[
             { href: "/admin/reports?status=pending", label: "신고 처리", badge: pendingReports, icon: "🚨", color: "text-red-600" },
             { href: "/admin/products?status=pending", label: "프롬프트 승인", badge: pendingProducts, icon: "⏳", color: "text-orange-600" },
+            { href: "/admin/support", label: "고객 문의", badge: openTickets, icon: "💬", color: "text-teal-600" },
             { href: "/admin/users", label: "사용자 관리", badge: null, icon: "👥", color: "text-blue-600" },
             { href: "/admin/orders", label: "주문 조회", badge: null, icon: "💳", color: "text-green-600" },
             { href: "/admin/announcements", label: "공지 작성", badge: null, icon: "📢", color: "text-indigo-600" },

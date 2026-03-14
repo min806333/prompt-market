@@ -1,23 +1,39 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import PricingCards from "@/components/pricing/PricingCards";
 import Container from "@/components/layout/Container";
 
-export const metadata: Metadata = {
-  title: "요금제 | Promto",
-  description: "무료부터 프리미엄까지. 인디 크리에이터를 위한 AI 프롬프트 마켓플레이스 요금제를 확인하세요.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale: params.locale, namespace: "pricing" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+  };
+}
 
-export default function PricingPage() {
+export default async function PricingPage({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  const t = await getTranslations({ locale: params.locale, namespace: "pricing" });
   return (
     <div className="py-16">
       <Container>
         <div className="text-center mb-14">
           <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-4">
-            요금제 선택
+            {t("title")}
           </h1>
           <p className="text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-            무료로 시작하고, 필요할 때 업그레이드하세요.
-            Pro 플랜은 <span className="text-indigo-600 dark:text-indigo-400 font-semibold">7일 무료 체험</span>이 포함됩니다.
+            {t("subtitle")}
+            <br />
+            <span className="text-indigo-600 dark:text-indigo-400 font-semibold text-base">
+              {t("trialNote")}
+            </span>
           </p>
         </div>
         <PricingCards />

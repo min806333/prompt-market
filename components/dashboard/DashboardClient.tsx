@@ -8,13 +8,15 @@ import Container from "@/components/layout/Container";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/ToastProvider";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 type Tab = "overview" | "purchases" | "selling" | "settings";
 
 export default function DashboardClient() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
+  const locale = useLocale();
+  const lp = locale === "en" ? "/en" : "";
   const [tab, setTab] = useState<Tab>("overview");
   const [displayName, setDisplayName] = useState("");
   const [saving, setSaving] = useState(false);
@@ -24,7 +26,7 @@ export default function DashboardClient() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/auth/login");
+      router.push(`${lp}/auth/login`);
     }
     if (user) {
       setDisplayName(user.user_metadata?.full_name ?? "");
@@ -47,7 +49,7 @@ export default function DashboardClient() {
 
   const handleSignOut = async () => {
     await signOut();
-    router.push("/");
+    router.push(lp || "/");
   };
 
   if (loading) {
@@ -145,10 +147,10 @@ export default function DashboardClient() {
                     {t("quickMenu")}
                   </h2>
                   <div className="grid grid-cols-2 gap-3">
-                    <Button href="/products" variant="outline" className="justify-center">
+                    <Button href={`${lp}/products`} variant="outline" className="justify-center">
                       {t("browseProducts")}
                     </Button>
-                    <Button href="/sell" className="justify-center">
+                    <Button href={`${lp}/sell`} className="justify-center">
                       {t("startSelling")}
                     </Button>
                   </div>

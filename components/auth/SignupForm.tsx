@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -14,6 +14,9 @@ export default function SignupForm() {
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const params = useParams();
+  const locale = (params?.locale as string) ?? "ko";
+  const lp = locale === "ko" ? "" : `/${locale}`;
   const toast = useToast();
   const supabase = createClient();
 
@@ -38,7 +41,7 @@ export default function SignupForm() {
       toast.error(error.message);
     } else {
       toast.success("이메일 인증 링크를 확인하세요!");
-      router.push("/auth/verify-email");
+      router.push(`${lp}/auth/verify-email`);
     }
   };
 
@@ -136,16 +139,16 @@ export default function SignupForm() {
 
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
             이미 계정이 있으신가요?{" "}
-            <Link href="/auth/login" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
+            <Link href={`${lp}/auth/login`} className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
               로그인
             </Link>
           </p>
 
           <p className="text-center text-xs text-gray-400 mt-4">
             가입 시{" "}
-            <Link href="/legal/terms" className="hover:underline">이용약관</Link>
+            <Link href={`${lp}/legal/terms`} className="hover:underline">이용약관</Link>
             {" "}및{" "}
-            <Link href="/legal/privacy" className="hover:underline">개인정보처리방침</Link>
+            <Link href={`${lp}/legal/privacy`} className="hover:underline">개인정보처리방침</Link>
             에 동의하는 것으로 간주됩니다.
           </p>
         </div>

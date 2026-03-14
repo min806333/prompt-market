@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import SupportClient from "@/components/support/SupportClient";
 
-export const metadata: Metadata = {
-  title: "고객센터 — PromptMarket",
-  description: "PromptMarket 고객센터입니다. 자주 묻는 질문과 문의 방법을 확인하세요.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale: params.locale, namespace: "support" });
+  return {
+    title: `${t("title")} — Promto`,
+    description: t("subtitle"),
+  };
+}
 
 export default function SupportPage() {
   return <SupportClient />;
