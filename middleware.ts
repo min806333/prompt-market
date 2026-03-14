@@ -15,7 +15,7 @@ const intlMiddleware = createMiddleware({
 const PROTECTED_ROUTES = ["/dashboard", "/sell/new", "/admin"];
 const AUTH_ROUTES = ["/auth/login", "/auth/signup"];
 
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Strip locale prefix for protected/auth route matching
@@ -25,7 +25,11 @@ export async function proxy(req: NextRequest) {
   const intlResponse = intlMiddleware(req);
 
   // If intl middleware issued a redirect, respect it
-  if (intlResponse.status === 307 || intlResponse.status === 308 || intlResponse.status === 302) {
+  if (
+    intlResponse.status === 307 ||
+    intlResponse.status === 308 ||
+    intlResponse.status === 302
+  ) {
     return intlResponse;
   }
 
@@ -39,9 +43,8 @@ export async function proxy(req: NextRequest) {
     {
       cookies: {
         getAll: () => req.cookies.getAll(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setAll: (cookiesToSet: any[]) => {
-          cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: object }) => {
+        setAll: (cookiesToSet: { name: string; value: string; options?: object }[]) => {
+          cookiesToSet.forEach(({ name, value, options }) => {
             res.cookies.set(name, value, options);
           });
         },
@@ -58,7 +61,9 @@ export async function proxy(req: NextRequest) {
   const localePath = currentLocale === defaultLocale ? "" : `/${currentLocale}`;
 
   // Redirect unauthenticated users away from protected routes
-  const isProtected = PROTECTED_ROUTES.some((r) => pathnameWithoutLocale.startsWith(r));
+  const isProtected = PROTECTED_ROUTES.some((r) =>
+    pathnameWithoutLocale.startsWith(r)
+  );
   if (isProtected && !user) {
     const loginUrl = new URL(`${localePath}/auth/login`, req.url);
     loginUrl.searchParams.set("redirectTo", pathnameWithoutLocale);
@@ -66,7 +71,9 @@ export async function proxy(req: NextRequest) {
   }
 
   // Redirect authenticated users away from auth pages
-  const isAuthRoute = AUTH_ROUTES.some((r) => pathnameWithoutLocale.startsWith(r));
+  const isAuthRoute = AUTH_ROUTES.some((r) =>
+    pathnameWithoutLocale.startsWith(r)
+  );
   if (isAuthRoute && user) {
     return NextResponse.redirect(new URL(`${localePath}/dashboard`, req.url));
   }
