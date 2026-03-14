@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProductBySlug } from "@/lib/data/mockData";
 import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
   // Rate limit: IP당 1분에 20회
@@ -30,18 +31,21 @@ export async function GET(req: NextRequest) {
   }
 
   if (!product.isFree) {
-    // Phase 2: 구매 인증 확인
-    // const supabase = await createClient();
-    // const { data: { user } } = await supabase.auth.getUser();
-    // if (!user) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-    // const { data: order } = await supabase.from("orders")
-    //   .select().eq("user_id", user.id).eq("product_id", product.id)
-    //   .eq("payment_status", "completed").single();
-    // if (!order) return NextResponse.json({ error: "구매 후 다운로드 가능합니다." }, { status: 403 });
-    return NextResponse.json(
-      { error: "구매 후 다운로드 가능합니다." },
-      { status: 403 }
-    );
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    }
+    const { data: order } = await supabase
+      .from("orders")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("product_id", product.id)
+      .eq("payment_status", "completed")
+      .single();
+    if (!order) {
+      return NextResponse.json({ error: "구매 후 다운로드 가능합니다." }, { status: 403 });
+    }
   }
 
   if (!product.fileUrls[0]) {

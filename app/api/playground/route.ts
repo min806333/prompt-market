@@ -99,7 +99,8 @@ export async function POST(req: NextRequest) {
     .eq("id", user.id)
     .single();
 
-  const limit = profile?.subscription_status === "pro" ? PRO_DAILY_LIMIT : DAILY_LIMIT;
+  const PAID_PLANS = ["pro", "creator", "premium"];
+  const limit = PAID_PLANS.includes(profile?.subscription_status ?? "") ? PRO_DAILY_LIMIT : DAILY_LIMIT;
 
   const today = new Date().toISOString().split("T")[0];
   const { count } = await supabase

@@ -146,10 +146,18 @@ export async function handleInvoicePaymentSucceeded(
     })
     .eq("stripe_subscription_id", subscriptionId);
 
-  // Sync profile subscription status
+  // Sync profile subscription status using actual plan from subscriptions table
+  const { data: subRecord } = await supabase
+    .from("subscriptions")
+    .select("plan")
+    .eq("stripe_subscription_id", subscriptionId)
+    .single();
+
+  const planToSet = subRecord?.plan ?? "pro";
+
   await supabase
     .from("profiles")
-    .update({ subscription_status: "pro" })
+    .update({ subscription_status: planToSet })
     .eq("id", subscription.user_id);
 
   console.log(`[Webhook] Subscription renewed: ${subscriptionId}`);
@@ -187,7 +195,7 @@ export async function handleSubscriptionUpdated(
 
     await supabase
       .from("profiles")
-      .update({ subscription_status: isActive ? "pro" : "free" })
+      .update({ subscription_status: isActive ? plan : "free" })
       .eq("id", existing.user_id);
   } else {
     // First-time insert (subscription created via checkout)
@@ -215,7 +223,7 @@ export async function handleSubscriptionUpdated(
 
       await supabase
         .from("profiles")
-        .update({ subscription_status: isActive ? "pro" : "free" })
+        .update({ subscription_status: isActive ? plan : "free" })
         .eq("id", profile.id);
     }
   }

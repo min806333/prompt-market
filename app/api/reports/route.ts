@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
-
-const REPORT_TYPES = ["spam", "duplicate", "not_working", "inappropriate"] as const;
+import { REPORT_TYPES } from "@/types";
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import type { Prompt, SortOption, SearchFilters } from "@/types";
 import PromptCard from "@/components/marketplace/PromptCard";
 import FilterSidebar from "@/components/marketplace/FilterSidebar";
@@ -30,6 +30,7 @@ export default function MarketplaceClient({
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const t = useTranslations("marketplace");
+  const locale = useLocale();
 
   const toggleFavorite = useCallback((id: string) => {
     setFavorites((prev) => {
@@ -43,9 +44,10 @@ export default function MarketplaceClient({
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const goToPage = (p: number) => {
+    const lp = locale === "en" ? "/en" : "";
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(p));
-    router.push(`/products?${params.toString()}`);
+    router.push(`${lp}/products?${params.toString()}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 

@@ -42,6 +42,12 @@ export async function PATCH(req: NextRequest) {
 
   const { id, action, promptId } = body;
 
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!UUID_REGEX.test(id))
+    return NextResponse.json({ error: "유효하지 않은 report ID입니다." }, { status: 400 });
+  if (promptId && !UUID_REGEX.test(promptId))
+    return NextResponse.json({ error: "유효하지 않은 promptId입니다." }, { status: 400 });
+
   const statusMap: Record<string, string> = {
     resolve: "resolved",
     dismiss: "dismissed",

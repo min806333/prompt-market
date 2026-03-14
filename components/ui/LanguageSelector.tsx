@@ -34,13 +34,11 @@ export default function LanguageSelector() {
 
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
 
-    let newPath: string;
-    if (newLocale === "ko") {
-      newPath = pathname.replace(/^\/en(\/|$)/, "/") || "/";
-    } else {
-      const cleanPath = pathname.startsWith("/en") ? pathname : pathname;
-      newPath = `/en${cleanPath === "/" ? "" : cleanPath}`;
-    }
+    const strippedPath = pathname.replace(/^\/en(\/|$)/, "/") || "/";
+    const newPath =
+      newLocale === "ko"
+        ? strippedPath
+        : `/en${strippedPath === "/" ? "" : strippedPath}`;
 
     setOpen(false);
     router.push(newPath);

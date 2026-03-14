@@ -153,11 +153,14 @@ export interface Bundle {
   createdAt: string;
 }
 
+export const REPORT_TYPES = ["spam", "duplicate", "not_working", "inappropriate"] as const;
+export type ReportType = typeof REPORT_TYPES[number];
+
 export interface Report {
   id: string;
   reporterId?: string;
   promptId: string;
-  reportType: "fake" | "duplicate" | "broken" | "spam";
+  reportType: ReportType;
   description?: string;
   status: "pending" | "reviewed" | "dismissed";
   createdAt: string;

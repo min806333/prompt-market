@@ -31,8 +31,37 @@ export default function SettingsClient() {
     if (user) {
       setDisplayName(user.user_metadata?.full_name ?? "");
       setEmail(user.email ?? "");
+      supabase
+        .from("profiles")
+        .select("notif_new_product, notif_email")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setNotifNewProduct(data.notif_new_product ?? true);
+            setNotifEmail(data.notif_email ?? false);
+          }
+        });
     }
   }, [user, loading, router]);
+
+  const handleNotifChange = async (
+    field: "notif_new_product" | "notif_email",
+    value: boolean
+  ) => {
+    if (!user) return;
+    if (field === "notif_new_product") setNotifNewProduct(value);
+    else setNotifEmail(value);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ [field]: value })
+      .eq("id", user.id);
+    if (error) {
+      toast.error("알림 설정 저장에 실패했습니다.");
+      if (field === "notif_new_product") setNotifNewProduct(!value);
+      else setNotifEmail(!value);
+    }
+  };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,7 +182,7 @@ export default function SettingsClient() {
                   <input
                     type="checkbox"
                     checked={notifNewProduct}
-                    onChange={(e) => setNotifNewProduct(e.target.checked)}
+                    onChange={(e) => handleNotifChange("notif_new_product", e.target.checked)}
                     className="sr-only peer"
                   />
                   <div className="w-10 h-6 rounded-full bg-gray-200 dark:bg-gray-700 peer-checked:bg-indigo-600 transition-colors relative">
@@ -170,7 +199,7 @@ export default function SettingsClient() {
                   <input
                     type="checkbox"
                     checked={notifEmail}
-                    onChange={(e) => setNotifEmail(e.target.checked)}
+                    onChange={(e) => handleNotifChange("notif_email", e.target.checked)}
                     className="sr-only peer"
                   />
                   <div className="w-10 h-6 rounded-full bg-gray-200 dark:bg-gray-700 peer-checked:bg-indigo-600 transition-colors relative">
