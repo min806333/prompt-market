@@ -15,15 +15,13 @@ export default async function PlaygroundPage({ searchParams }: Props) {
   const { promptId } = await searchParams;
   const selectedPrompt = promptId ? prompts.find((p) => p.id === promptId) ?? null : null;
 
-  const textPrompts = prompts.filter(
-    (p) => p.aiTools.some((t) => ["ChatGPT", "Claude"].includes(t)) && p.status === "approved"
-  );
+  const availablePrompts = prompts.filter((p) => p.status === "approved");
 
   return (
     <div className="py-10">
       <PlaygroundClient
         initialPrompt={selectedPrompt}
-        availablePrompts={textPrompts}
+        availablePrompts={availablePrompts}
       />
     </div>
   );

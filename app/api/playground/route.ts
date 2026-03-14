@@ -2,78 +2,157 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
 
+// Polling-based generation (Udio/Kling) can take up to 50s
+// Requires Vercel Pro (maxDuration > 10s). On Hobby plan, Udio/Kling will time out.
+export const maxDuration = 60;
+
 const DAILY_LIMIT = 3;
 const PRO_DAILY_LIMIT = 20;
+const ALLOWED_TEXT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"];
 
-const MUSIC_MODELS: Record<string, { name: string; url: string; instructions: string }> = {
+// Copy-only models (no official API)
+const COPY_ONLY: Record<
+  string,
+  { name: string; url: string; instructions: string; type: "music" | "image" | "video" }
+> = {
   suno: {
     name: "Suno",
     url: "https://suno.com",
     instructions: "Custom Mode를 활성화하고 Style 입력란에 프롬프트를 붙여넣으세요",
+    type: "music",
   },
-  udio: {
-    name: "Udio",
-    url: "https://www.udio.com",
-    instructions: "Custom 모드에서 Style 입력란에 프롬프트를 붙여넣으세요",
-  },
-};
-
-const IMAGE_MODELS: Record<string, { name: string; url: string; instructions: string }> = {
   midjourney: {
     name: "Midjourney",
     url: "https://www.midjourney.com",
     instructions: "Discord의 /imagine 명령어 뒤에 프롬프트를 붙여넣으세요",
+    type: "image",
   },
-  "stable-diffusion": {
-    name: "Stable Diffusion",
-    url: "https://stability.ai",
-    instructions: "Prompt 입력란에 프롬프트를 붙여넣고 Generate를 누르세요",
-  },
-  dalle: {
-    name: "DALL-E",
-    url: "https://openai.com/dall-e-3",
-    instructions: "ChatGPT에서 이미지 생성 모드로 전환 후 프롬프트를 입력하세요",
-  },
-};
-
-const VIDEO_MODELS: Record<string, { name: string; url: string; instructions: string }> = {
   runway: {
     name: "Runway",
     url: "https://runwayml.com",
-    instructions: "Gen-3 Alpha에서 Text to Video에 프롬프트를 붙여넣으세요",
+    instructions: "Gen-3 Alpha → Text to Video에 프롬프트를 붙여넣으세요",
+    type: "video",
   },
   pika: {
     name: "Pika",
     url: "https://pika.art",
     instructions: "Text to Video 탭에 프롬프트를 입력하세요",
-  },
-  kling: {
-    name: "Kling AI",
-    url: "https://klingai.com",
-    instructions: "AI Video 섹션에 프롬프트를 입력하고 생성하세요",
+    type: "video",
   },
 };
 
-const ALLOWED_TEXT_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"];
+// ── Real API generators ──────────────────────────────────────────────────────
 
-function buildCopyResponse(
-  type: "music" | "image" | "video",
-  info: { name: string; url: string; instructions: string },
-  promptText: string,
-  remainingToday: number
-) {
-  const emoji = type === "music" ? "🎵" : type === "image" ? "🎨" : "🎬";
-  const typeLabel = type === "music" ? "음악" : type === "image" ? "이미지" : "영상";
-
-  return NextResponse.json({
-    content: `${emoji} 이 프롬프트는 **${info.name}** ${typeLabel} 생성용입니다.\n\n**사용 방법:**\n1. 아래 프롬프트를 복사하세요\n2. [${info.name}](${info.url}) 에 접속하세요\n3. ${info.instructions}\n4. 생성 버튼을 눌러 결과물을 만드세요\n\n---\n\n**프롬프트:**\n\`\`\`\n${promptText}\n\`\`\``,
-    model: info.name.toLowerCase(),
-    isCopyPrompt: true,
-    promptType: type,
-    platformUrl: info.url,
-    remainingToday,
+async function generateImage_DallE3(prompt: string): Promise<string> {
+  const res = await fetch("https://api.openai.com/v1/images/generations", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({ model: "dall-e-3", prompt, n: 1, size: "1024x1024" }),
   });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
+    throw new Error(err?.error?.message ?? `DALL-E error ${res.status}`);
+  }
+  const data = await res.json() as { data?: { url?: string }[] };
+  const url = data.data?.[0]?.url;
+  if (!url) throw new Error("No image URL returned from DALL-E");
+  return url;
 }
+
+async function generateImage_Flux(prompt: string): Promise<string> {
+  const res = await fetch("https://fal.run/fal-ai/flux/schnell", {
+    method: "POST",
+    headers: {
+      Authorization: `Key ${process.env.FAL_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt,
+      image_size: "landscape_4_3",
+      num_images: 1,
+      enable_safety_checker: true,
+    }),
+  });
+  if (!res.ok) throw new Error(`fal.ai error ${res.status}`);
+  const data = await res.json() as { images?: { url?: string }[] };
+  const url = data.images?.[0]?.url;
+  if (!url) throw new Error("No image URL from fal.ai");
+  return url;
+}
+
+async function generateMusic_Udio(prompt: string): Promise<string> {
+  const res = await fetch("https://api.udio.com/v1/generations", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.UDIO_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ prompt, duration: 30 }),
+  });
+  if (!res.ok) throw new Error(`Udio API error ${res.status}`);
+
+  const data = await res.json() as { audio_url?: string; task_id?: string; id?: string };
+  if (data.audio_url) return data.audio_url;
+
+  const taskId = data.task_id ?? data.id;
+  if (!taskId) throw new Error("No task ID from Udio");
+
+  for (let i = 0; i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 5000));
+    const poll = await fetch(`https://api.udio.com/v1/generations/${taskId}`, {
+      headers: { Authorization: `Bearer ${process.env.UDIO_API_KEY}` },
+    });
+    if (poll.ok) {
+      const s = await poll.json() as { status?: string; audio_url?: string };
+      if (s.status === "completed" && s.audio_url) return s.audio_url;
+      if (s.status === "failed") throw new Error("Udio generation failed");
+    }
+  }
+  throw new Error("Udio timed out after 50s");
+}
+
+async function generateVideo_Kling(prompt: string): Promise<string> {
+  const res = await fetch("https://api.klingai.com/v1/videos/text2video", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.KLING_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model_name: "kling-v1",
+      prompt,
+      duration: "5",
+      aspect_ratio: "16:9",
+      mode: "std",
+    }),
+  });
+  if (!res.ok) throw new Error(`Kling API error ${res.status}`);
+
+  const data = await res.json() as { data?: { task_id?: string } };
+  const taskId = data.data?.task_id;
+  if (!taskId) throw new Error("No task ID from Kling");
+
+  for (let i = 0; i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 5000));
+    const poll = await fetch(`https://api.klingai.com/v1/videos/text2video/${taskId}`, {
+      headers: { Authorization: `Bearer ${process.env.KLING_API_KEY}` },
+    });
+    if (poll.ok) {
+      const s = await poll.json() as { data?: { task_status?: string; task_result?: { videos?: { url?: string }[] } } };
+      if (s.data?.task_status === "succeed") {
+        const url = s.data?.task_result?.videos?.[0]?.url;
+        if (url) return url;
+      }
+      if (s.data?.task_status === "failed") throw new Error("Kling generation failed");
+    }
+  }
+  throw new Error("Kling timed out after 50s");
+}
+
+// ── Main handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
@@ -120,47 +199,132 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const body = await req.json();
+  const body = await req.json() as { promptText?: unknown; model?: unknown };
   const { promptText, model } = body;
 
   if (!promptText || typeof promptText !== "string" || promptText.length > 2000) {
     return NextResponse.json({ error: "유효하지 않은 프롬프트입니다." }, { status: 400 });
   }
 
-  const modelKey = (model ?? "").toLowerCase();
+  const modelKey = (typeof model === "string" ? model : "").toLowerCase().trim();
   const remaining = limit - usedToday - 1;
 
-  // Music models
-  if (MUSIC_MODELS[modelKey]) {
-    await supabase.from("playground_usage").insert({
+  const logUsage = () =>
+    supabase.from("playground_usage").insert({
       user_id: user.id,
       prompt_text: promptText.slice(0, 500),
       model_used: modelKey,
     });
-    return buildCopyResponse("music", MUSIC_MODELS[modelKey], promptText, remaining);
-  }
 
-  // Image models
-  if (IMAGE_MODELS[modelKey]) {
-    await supabase.from("playground_usage").insert({
-      user_id: user.id,
-      prompt_text: promptText.slice(0, 500),
-      model_used: modelKey,
+  // ── Copy-only (Suno, Midjourney, Runway, Pika) ──────────────────────────
+  if (COPY_ONLY[modelKey]) {
+    const info = COPY_ONLY[modelKey];
+    const emoji = info.type === "music" ? "🎵" : info.type === "image" ? "🎨" : "🎬";
+    const typeLabel = info.type === "music" ? "음악" : info.type === "image" ? "이미지" : "영상";
+    await logUsage();
+    return NextResponse.json({
+      content: `${emoji} 이 프롬프트는 **${info.name}** ${typeLabel} 생성용입니다.\n\n**사용 방법:**\n1. 아래 프롬프트를 복사하세요\n2. [${info.name}](${info.url}) 에 접속하세요\n3. ${info.instructions}\n\n---\n\n**프롬프트:**\n\`\`\`\n${promptText}\n\`\`\``,
+      resultType: "copy",
+      model: modelKey,
+      platformUrl: info.url,
+      remainingToday: remaining,
     });
-    return buildCopyResponse("image", IMAGE_MODELS[modelKey], promptText, remaining);
   }
 
-  // Video models
-  if (VIDEO_MODELS[modelKey]) {
-    await supabase.from("playground_usage").insert({
-      user_id: user.id,
-      prompt_text: promptText.slice(0, 500),
-      model_used: modelKey,
-    });
-    return buildCopyResponse("video", VIDEO_MODELS[modelKey], promptText, remaining);
+  // ── DALL-E 3 (real generation) ───────────────────────────────────────────
+  if (modelKey === "dalle") {
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: "OpenAI API 키가 설정되지 않았습니다." }, { status: 503 });
+    }
+    try {
+      const imageUrl = await generateImage_DallE3(promptText);
+      await logUsage();
+      return NextResponse.json({
+        content: "DALL-E 3 이미지 생성 완료",
+        imageUrl,
+        resultType: "image",
+        model: "dalle",
+        remainingToday: remaining,
+      });
+    } catch (e) {
+      console.error("DALL-E error:", e);
+      return NextResponse.json({ error: `DALL-E 오류: ${(e as Error).message}` }, { status: 500 });
+    }
   }
 
-  // Text models (GPT)
+  // ── fal.ai Flux (real generation) ───────────────────────────────────────
+  if (modelKey === "flux") {
+    if (!process.env.FAL_KEY) {
+      return NextResponse.json(
+        { error: "fal.ai API 키가 설정되지 않았습니다. 관리자에게 문의하세요.", remainingToday: remaining + 1 },
+        { status: 503 }
+      );
+    }
+    try {
+      const imageUrl = await generateImage_Flux(promptText);
+      await logUsage();
+      return NextResponse.json({
+        content: "Flux 이미지 생성 완료",
+        imageUrl,
+        resultType: "image",
+        model: "flux",
+        remainingToday: remaining,
+      });
+    } catch (e) {
+      console.error("Flux error:", e);
+      return NextResponse.json({ error: `Flux 오류: ${(e as Error).message}` }, { status: 500 });
+    }
+  }
+
+  // ── Udio (real generation) ───────────────────────────────────────────────
+  if (modelKey === "udio") {
+    if (!process.env.UDIO_API_KEY) {
+      return NextResponse.json(
+        { error: "Udio API 키가 설정되지 않았습니다. 관리자에게 문의하세요.", remainingToday: remaining + 1 },
+        { status: 503 }
+      );
+    }
+    try {
+      const audioUrl = await generateMusic_Udio(promptText);
+      await logUsage();
+      return NextResponse.json({
+        content: "Udio 음악 생성 완료",
+        audioUrl,
+        resultType: "audio",
+        model: "udio",
+        remainingToday: remaining,
+      });
+    } catch (e) {
+      console.error("Udio error:", e);
+      return NextResponse.json({ error: `Udio 오류: ${(e as Error).message}` }, { status: 500 });
+    }
+  }
+
+  // ── Kling AI (real generation) ───────────────────────────────────────────
+  if (modelKey === "kling") {
+    if (!process.env.KLING_API_KEY) {
+      return NextResponse.json(
+        { error: "Kling API 키가 설정되지 않았습니다. 관리자에게 문의하세요.", remainingToday: remaining + 1 },
+        { status: 503 }
+      );
+    }
+    try {
+      const videoUrl = await generateVideo_Kling(promptText);
+      await logUsage();
+      return NextResponse.json({
+        content: "Kling 영상 생성 완료",
+        videoUrl,
+        resultType: "video",
+        model: "kling",
+        remainingToday: remaining,
+      });
+    } catch (e) {
+      console.error("Kling error:", e);
+      return NextResponse.json({ error: `Kling 오류: ${(e as Error).message}` }, { status: 500 });
+    }
+  }
+
+  // ── GPT Text (default) ───────────────────────────────────────────────────
   const selectedModel = ALLOWED_TEXT_MODELS.includes(modelKey) ? modelKey : "gpt-4o-mini";
 
   if (!process.env.OPENAI_API_KEY) {
@@ -171,7 +335,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const gptRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -185,26 +349,20 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
-    }
+    if (!gptRes.ok) throw new Error(`OpenAI error ${gptRes.status}`);
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content ?? "";
-
-    await supabase.from("playground_usage").insert({
-      user_id: user.id,
-      prompt_text: promptText.slice(0, 500),
-      model_used: selectedModel,
-    });
+    const gptData = await gptRes.json() as { choices?: { message?: { content?: string } }[] };
+    const content = gptData.choices?.[0]?.message?.content ?? "";
+    await logUsage();
 
     return NextResponse.json({
       content,
+      resultType: "text",
       model: selectedModel,
       remainingToday: remaining,
     });
   } catch (err) {
-    console.error("Playground API error:", err);
+    console.error("GPT error:", err);
     return NextResponse.json({ error: "AI 생성 중 오류가 발생했습니다." }, { status: 500 });
   }
 }

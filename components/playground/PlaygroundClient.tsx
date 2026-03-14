@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { Prompt } from "@/types";
 import Container from "@/components/layout/Container";
@@ -11,6 +12,16 @@ interface PlaygroundClientProps {
   availablePrompts: Prompt[];
 }
 
+interface PlaygroundResult {
+  content: string;
+  resultType: "text" | "image" | "audio" | "video" | "copy";
+  imageUrl?: string;
+  audioUrl?: string;
+  videoUrl?: string;
+  platformUrl?: string;
+  remainingToday: number;
+}
+
 export default function PlaygroundClient({ initialPrompt, availablePrompts }: PlaygroundClientProps) {
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(initialPrompt);
   const [selectedSample, setSelectedSample] = useState<string>(
@@ -19,10 +30,9 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
   const [customText, setCustomText] = useState("");
   const [activeInput, setActiveInput] = useState<"sample" | "custom">("sample");
   const [model, setModel] = useState("gpt-4o-mini");
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<PlaygroundResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [remaining, setRemaining] = useState<number | null>(null);
   const t = useTranslations("playground");
 
   const promptText = activeInput === "sample" ? selectedSample : customText;
@@ -39,14 +49,20 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ promptText, model }),
       });
-      const data = await res.json();
+      const data = await res.json() as Partial<PlaygroundResult> & { error?: string; remainingToday?: number };
       if (!res.ok) {
         setError(data.error ?? "An error occurred.");
-        if (data.remainingToday !== undefined) setRemaining(data.remainingToday);
         return;
       }
-      setResult(data.content);
-      setRemaining(data.remainingToday);
+      setResult({
+        content: data.content ?? "",
+        resultType: data.resultType ?? "text",
+        imageUrl: data.imageUrl,
+        audioUrl: data.audioUrl,
+        videoUrl: data.videoUrl,
+        platformUrl: data.platformUrl,
+        remainingToday: data.remainingToday ?? 0,
+      });
     } catch {
       setError("A network error occurred.");
     } finally {
@@ -55,17 +71,144 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
   }
 
   const modelOptions = [
-    { value: "gpt-4o-mini", label: "GPT-4o Mini", desc: "Fast" },
-    { value: "gpt-4o", label: "GPT-4o", desc: "High quality" },
-    { value: "suno", label: "Suno AI", desc: "🎵 Music" },
-    { value: "udio", label: "Udio", desc: "🎵 Music" },
-    { value: "midjourney", label: "Midjourney", desc: "🎨 Image" },
-    { value: "stable-diffusion", label: "Stable Diff", desc: "🎨 Image" },
-    { value: "dalle", label: "DALL-E", desc: "🎨 Image" },
-    { value: "runway", label: "Runway", desc: "🎬 Video" },
-    { value: "pika", label: "Pika", desc: "🎬 Video" },
-    { value: "kling", label: "Kling AI", desc: "🎬 Video" },
+    { value: "gpt-4o-mini", label: "GPT-4o Mini", desc: "⚡ Text", badge: "API" },
+    { value: "gpt-4o", label: "GPT-4o", desc: "✨ Text", badge: "API" },
+    { value: "dalle", label: "DALL-E 3", desc: "🎨 Image", badge: "API" },
+    { value: "flux", label: "Flux", desc: "🎨 Image", badge: "API" },
+    { value: "udio", label: "Udio", desc: "🎵 Music", badge: "API" },
+    { value: "kling", label: "Kling AI", desc: "🎬 Video", badge: "API" },
+    { value: "suno", label: "Suno", desc: "🎵 Music", badge: "Copy" },
+    { value: "midjourney", label: "Midjourney", desc: "🎨 Image", badge: "Copy" },
+    { value: "runway", label: "Runway", desc: "🎬 Video", badge: "Copy" },
+    { value: "pika", label: "Pika", desc: "🎬 Video", badge: "Copy" },
   ];
+
+  const renderResult = () => {
+    if (!result) return null;
+
+    const { resultType, content, imageUrl, audioUrl, videoUrl, platformUrl } = result;
+
+    if (resultType === "image" && imageUrl) {
+      return (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Generated Image</p>
+            <a
+              href={imageUrl}
+              download="generated-image.png"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400 transition-colors"
+            >
+              Download
+            </a>
+          </div>
+          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            <Image
+              src={imageUrl}
+              alt="AI generated image"
+              width={1024}
+              height={1024}
+              className="w-full h-auto"
+              unoptimized
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (resultType === "audio" && audioUrl) {
+      return (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Generated Music</p>
+            <a
+              href={audioUrl}
+              download="generated-music.mp3"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400 transition-colors"
+            >
+              Download
+            </a>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">🎵 Udio generated music</p>
+            <audio controls className="w-full" src={audioUrl}>
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+        </div>
+      );
+    }
+
+    if (resultType === "video" && videoUrl) {
+      return (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Generated Video</p>
+            <a
+              href={videoUrl}
+              download="generated-video.mp4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400 transition-colors"
+            >
+              Download
+            </a>
+          </div>
+          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            <video controls className="w-full" src={videoUrl}>
+              Your browser does not support the video element.
+            </video>
+          </div>
+        </div>
+      );
+    }
+
+    // Text or Copy result
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+            {resultType === "copy" ? "Prompt Ready" : "Result"}
+          </p>
+          <button
+            onClick={() => navigator.clipboard.writeText(content)}
+            className="text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400 transition-colors"
+          >
+            Copy
+          </button>
+        </div>
+        {resultType === "copy" && platformUrl && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-200 dark:border-blue-800">
+            <a
+              href={platformUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Open Platform →
+            </a>
+          </div>
+        )}
+        <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+          {content}
+        </div>
+        {selectedPrompt && (
+          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-xs text-gray-400 mb-2">Like the result?</p>
+            <Link
+              href={`/products/${selectedPrompt.slug}`}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              Buy all {selectedPrompt.promptCount} prompts →
+            </Link>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <Container>
@@ -166,22 +309,35 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               {t("aiModel")}
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {modelOptions.map((m) => (
                 <button
                   key={m.value}
                   onClick={() => setModel(m.value)}
-                  className={`py-2.5 px-3 rounded-xl border text-sm transition-colors ${
+                  className={`py-2.5 px-3 rounded-xl border text-sm transition-colors text-left ${
                     model === m.value
                       ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 font-semibold"
                       : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-300"
                   }`}
                 >
-                  <span className="font-medium text-xs">{m.label}</span>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="font-medium text-xs">{m.label}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                      m.badge === "API"
+                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                        : "bg-gray-100 dark:bg-gray-700 text-gray-500"
+                    }`}>
+                      {m.badge}
+                    </span>
+                  </div>
                   <span className="block text-xs opacity-60">{m.desc}</span>
                 </button>
               ))}
             </div>
+            <p className="text-xs text-gray-400 mt-2">
+              <span className="font-semibold text-green-600">API</span> = 직접 생성 &nbsp;|&nbsp;
+              <span className="font-semibold text-gray-500">Copy</span> = 복사 후 외부 사이트에서 생성
+            </p>
           </div>
 
           {/* Selected prompt preview */}
@@ -218,9 +374,9 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
             )}
           </button>
 
-          {remaining !== null && (
+          {result !== null && (
             <p className="text-xs text-center text-gray-400">
-              {t("remaining", { count: remaining })}
+              {t("remaining", { count: result.remainingToday })}
             </p>
           )}
         </div>
@@ -243,6 +399,15 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
                 <p className="font-medium">{t("running")}</p>
+                {["dalle", "flux"].includes(model) && (
+                  <p className="text-xs mt-2 text-gray-400">이미지 생성 중... (10~20초)</p>
+                )}
+                {model === "udio" && (
+                  <p className="text-xs mt-2 text-gray-400">음악 생성 중... (최대 50초)</p>
+                )}
+                {model === "kling" && (
+                  <p className="text-xs mt-2 text-gray-400">영상 생성 중... (최대 50초)</p>
+                )}
               </div>
             )}
 
@@ -261,33 +426,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
               </div>
             )}
 
-            {result && !loading && (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Result</p>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(result)}
-                    className="text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400 transition-colors"
-                  >
-                    Copy
-                  </button>
-                </div>
-                <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                  {result}
-                </div>
-                {selectedPrompt && (
-                  <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <p className="text-xs text-gray-400 mb-2">Like the result?</p>
-                    <Link
-                      href={`/products/${selectedPrompt.slug}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors"
-                    >
-                      Buy all {selectedPrompt.promptCount} prompts →
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
+            {result && !loading && renderResult()}
           </div>
         </div>
       </div>
@@ -296,10 +435,10 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
       <div className="mt-10 p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900">
         <h3 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2">Playground Guide</h3>
         <ul className="text-sm text-indigo-700 dark:text-indigo-400 space-y-1">
-          <li>• Free users get <strong>3 tests/day</strong> after login</li>
-          <li>• Pro subscribers get <strong>20 tests/day</strong></li>
-          <li>• Text AI (GPT) prompts run directly — Music/Image/Video prompts show copy instructions</li>
-          <li>• Test results are not saved</li>
+          <li>• 무료 사용자는 로그인 후 <strong>하루 3회</strong> 테스트 가능</li>
+          <li>• Pro 구독자는 <strong>하루 20회</strong> 테스트 가능</li>
+          <li>• <strong className="text-green-700">API</strong> 모델: 사이트 내에서 직접 생성 (DALL-E 3, Flux, Udio, Kling)</li>
+          <li>• <strong className="text-gray-600">Copy</strong> 모델: 프롬프트 복사 → 외부 사이트에서 생성 (Suno, Midjourney, Runway, Pika)</li>
         </ul>
       </div>
     </Container>
