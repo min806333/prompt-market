@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
+import { createHmac } from "crypto";
 
 // Polling-based generation (Udio/Kling) can take up to 50s
 // Requires Vercel Pro (maxDuration > 10s). On Hobby plan, Udio/Kling will time out.
@@ -99,11 +100,23 @@ async function generateMusic_MusicGen(prompt: string): Promise<string> {
   return url;
 }
 
+// Kling AI JWT 생성 (Access Key ID + Secret 방식)
+function generateKlingJWT(): string {
+  const ak = process.env.KLING_ACCESS_KEY_ID ?? "";
+  const sk = process.env.KLING_ACCESS_KEY_SECRET ?? "";
+  const now = Math.floor(Date.now() / 1000);
+  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ iss: ak, exp: now + 1800, nbf: now - 5 })).toString("base64url");
+  const sig = createHmac("sha256", sk).update(`${header}.${payload}`).digest("base64url");
+  return `${header}.${payload}.${sig}`;
+}
+
 async function generateVideo_Kling(prompt: string): Promise<string> {
+  const token = generateKlingJWT();
   const res = await fetch("https://api.klingai.com/v1/videos/text2video", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.KLING_API_KEY}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -123,7 +136,7 @@ async function generateVideo_Kling(prompt: string): Promise<string> {
   for (let i = 0; i < 10; i++) {
     await new Promise((r) => setTimeout(r, 5000));
     const poll = await fetch(`https://api.klingai.com/v1/videos/text2video/${taskId}`, {
-      headers: { Authorization: `Bearer ${process.env.KLING_API_KEY}` },
+      headers: { Authorization: `Bearer ${generateKlingJWT()}` },
     });
     if (poll.ok) {
       const s = await poll.json() as { data?: { task_status?: string; task_result?: { videos?: { url?: string }[] } } };
@@ -287,7 +300,7 @@ export async function POST(req: NextRequest) {
 
   // ── Kling AI (real generation) ───────────────────────────────────────────
   if (modelKey === "kling") {
-    if (!process.env.KLING_API_KEY) {
+    if (!process.env.KLING_ACCESS_KEY_ID || !process.env.KLING_ACCESS_KEY_SECRET) {
       return NextResponse.json(
         { error: "Kling API 키가 설정되지 않았습니다. 관리자에게 문의하세요.", remainingToday: remaining + 1 },
         { status: 503 }
