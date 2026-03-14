@@ -93,7 +93,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
       return (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Generated Image</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t("resultImage")}</p>
             <a
               href={imageUrl}
               download="generated-image.png"
@@ -101,7 +101,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
               rel="noopener noreferrer"
               className="text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400 transition-colors"
             >
-              Download
+              {t("download")}
             </a>
           </div>
           <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -122,7 +122,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
       return (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Generated Music</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t("resultAudio")}</p>
             <a
               href={audioUrl}
               download="generated-music.mp3"
@@ -130,11 +130,11 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
               rel="noopener noreferrer"
               className="text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400 transition-colors"
             >
-              Download
+              {t("download")}
             </a>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">🎵 Udio generated music</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{t("generatedAudioLabel")}</p>
             <audio controls className="w-full" src={audioUrl}>
               Your browser does not support the audio element.
             </audio>
@@ -147,7 +147,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
       return (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Generated Video</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t("resultVideo")}</p>
             <a
               href={videoUrl}
               download="generated-video.mp4"
@@ -155,7 +155,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
               rel="noopener noreferrer"
               className="text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400 transition-colors"
             >
-              Download
+              {t("download")}
             </a>
           </div>
           <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -172,7 +172,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
       <div>
         <div className="flex items-center justify-between mb-4">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-            {resultType === "copy" ? "Prompt Ready" : "Result"}
+            {resultType === "copy" ? t("resultCopy") : "Result"}
           </p>
           <button
             onClick={() => navigator.clipboard.writeText(content)}
@@ -189,7 +189,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
               rel="noopener noreferrer"
               className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
             >
-              Open Platform →
+              {t("openPlatform")}
             </a>
           </div>
         )}
@@ -198,12 +198,12 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
         </div>
         {selectedPrompt && (
           <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-gray-400 mb-2">Like the result?</p>
+            <p className="text-xs text-gray-400 mb-2">{t("likeResult")}</p>
             <Link
               href={`/products/${selectedPrompt.slug}`}
               className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors"
             >
-              Buy all {selectedPrompt.promptCount} prompts →
+              {t("buyAll", { count: selectedPrompt.promptCount })}
             </Link>
           </div>
         )}
@@ -336,8 +336,8 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
               ))}
             </div>
             <p className="text-xs text-gray-400 mt-2">
-              <span className="font-semibold text-green-600">API</span> = 직접 생성 &nbsp;|&nbsp;
-              <span className="font-semibold text-gray-500">Copy</span> = 복사 후 외부 사이트에서 생성
+              <span className="font-semibold text-green-600">API</span> = {t("badgeApiDesc")} &nbsp;|&nbsp;
+              <span className="font-semibold text-gray-500">Copy</span> = {t("badgeCopyDesc")}
             </p>
           </div>
 
@@ -401,13 +401,13 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
                 </svg>
                 <p className="font-medium">{t("running")}</p>
                 {["dalle", "flux", "kling-image"].includes(model) && (
-                  <p className="text-xs mt-2 text-gray-400">이미지 생성 중... (10~30초)</p>
+                  <p className="text-xs mt-2 text-gray-400">{t("loadingImage")}</p>
                 )}
                 {model === "musicgen" && (
-                  <p className="text-xs mt-2 text-gray-400">음악 생성 중... (10~20초)</p>
+                  <p className="text-xs mt-2 text-gray-400">{t("loadingMusic")}</p>
                 )}
                 {model === "kling" && (
-                  <p className="text-xs mt-2 text-gray-400">영상 생성 중... (최대 50초)</p>
+                  <p className="text-xs mt-2 text-gray-400">{t("loadingVideo")}</p>
                 )}
               </div>
             )}
@@ -434,12 +434,12 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
 
       {/* Info banner */}
       <div className="mt-10 p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900">
-        <h3 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2">Playground Guide</h3>
+        <h3 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2">{t("guideTitle")}</h3>
         <ul className="text-sm text-indigo-700 dark:text-indigo-400 space-y-1">
-          <li>• 무료 사용자는 로그인 후 <strong>하루 3회</strong> 테스트 가능</li>
-          <li>• Pro 구독자는 <strong>하루 20회</strong> 테스트 가능</li>
-          <li>• <strong className="text-green-700">API</strong> 모델: 사이트 내에서 직접 생성 (DALL-E 3, Flux, Kling Kolors, MusicGen, Kling Video)</li>
-          <li>• <strong className="text-gray-600">Copy</strong> 모델: 프롬프트 복사 → 외부 사이트에서 생성 (Suno, Midjourney, Runway, Pika)</li>
+          <li>• {t("guideFree")}</li>
+          <li>• {t("guidePro")}</li>
+          <li>• <strong className="text-green-700">API</strong>: {t("guideApi")}</li>
+          <li>• <strong className="text-gray-600">Copy</strong>: {t("guideCopy")}</li>
         </ul>
       </div>
     </Container>
