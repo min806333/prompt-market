@@ -464,7 +464,33 @@
   },
   "builder": {
     "metaTitle": "Prompt Builder | Promto",
-    "metaDesc": "Create AI-optimized prompts with structured inputs."
+    "metaDesc": "Create AI-optimized prompts with structured inputs.",
+    "title": "Prompt Builder",
+    "subtitle": "Select options below to compose your ideal AI prompt.",
+    "labels": {
+      "aiModel": "AI Model",
+      "subject": "Subject",
+      "style": "Style",
+      "tone": "Tone",
+      "extraContext": "Extra Context (Optional)"
+    },
+    "placeholders": {
+      "extraContext": "Enter game name, genre, specific requirements, etc."
+    },
+    "subjects": ["Game BGM", "Game Design Doc", "App Description", "Marketing Copy", "Character Profile", "Video Script", "UI Text"],
+    "reset": "Reset",
+    "outputLabel": "Generated Prompt",
+    "copy": "Copy",
+    "copied": "✓ Copied",
+    "emptyPrompt": "Select options below to start building your prompt.",
+    "hintTitle": "💡 Want to use this prompt more professionally?",
+    "hintLink": "Browse verified prompt packs →",
+    "promptTemplate": {
+      "modelPrefix": "[{model} only]",
+      "subjectSuffix": "Write a {subject}.",
+      "style": "Style: {style}.",
+      "tone": "Tone: {tone}."
+    }
   },
   "sell": {
     "metaTitle": "Start Selling | Promto",

@@ -464,7 +464,33 @@
   },
   "builder": {
     "metaTitle": "프롬프트 빌더 | Promto",
-    "metaDesc": "AI에게 최적화된 프롬프트를 구조화된 입력으로 쉽게 생성하세요."
+    "metaDesc": "AI에게 최적화된 프롬프트를 구조화된 입력으로 쉽게 생성하세요.",
+    "title": "Prompt Builder",
+    "subtitle": "선택지를 골라 원하는 AI 프롬프트를 쉽게 조합하세요.",
+    "labels": {
+      "aiModel": "AI 모델",
+      "subject": "주제",
+      "style": "스타일",
+      "tone": "톤",
+      "extraContext": "추가 맥락 (선택)"
+    },
+    "placeholders": {
+      "extraContext": "게임 이름, 장르, 구체적인 요구사항 등을 입력하세요."
+    },
+    "subjects": ["게임 BGM", "기획서", "앱 소개문", "마케팅 카피", "캐릭터 설정", "영상 스크립트", "UI 텍스트"],
+    "reset": "초기화",
+    "outputLabel": "생성된 프롬프트",
+    "copy": "복사",
+    "copied": "✓ 복사됨",
+    "emptyPrompt": "프롬프트를 구성하려면 아래 항목을 선택하세요.",
+    "hintTitle": "💡 이 프롬프트를 더 전문적으로 쓰고 싶다면?",
+    "hintLink": "검증된 프롬프트 팩 보러가기 →",
+    "promptTemplate": {
+      "modelPrefix": "[{model} 전용]",
+      "subjectSuffix": "{subject}을(를) 작성해줘.",
+      "style": "스타일: {style}.",
+      "tone": "톤: {tone}."
+    }
   },
   "sell": {
     "metaTitle": "판매하기 | Promto",
