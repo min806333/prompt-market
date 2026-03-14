@@ -1,8 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 1시간에 3회 (스팸 방지)
+  const ip = getClientIp(req);
+  if (!rateLimit(ip, { limit: 3, windowMs: 60 * 60 * 1000 })) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      {
+        status: 429,
+        headers: { "Retry-After": "3600" },
+      }
+    );
+  }
+
   try {
     const body = await req.json();
     const { name, email, category, message } = body;

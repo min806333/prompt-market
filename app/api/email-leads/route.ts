@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
+import { createClient } from "@/lib/supabase/server";
 
-// Phase 2: Supabase email_leads 테이블에 저장
-// import { createClient } from "@/lib/supabase/server";
-
-// 허용 이메일 도메인 차단 목록 (스팸 방지)
 const BLOCKED_DOMAINS = ["mailinator.com", "tempmail.com", "throwaway.email", "guerrillamail.com"];
 
 function isValidEmail(email: string): boolean {
@@ -17,12 +14,11 @@ function isValidEmail(email: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  // Rate limit: IP당 5분에 3회
   const ip = getClientIp(req);
   if (!rateLimit(ip, { limit: 3, windowMs: 5 * 60 * 1000 })) {
     return NextResponse.json(
       { error: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요." },
-      { status: 429 }
+      { status: 429, headers: { "Retry-After": "300" } }
     );
   }
 
@@ -43,17 +39,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
     }
 
-    // Phase 1: 콘솔 출력
-    console.log("[email_leads]", { email: email.toLowerCase(), source });
+    const supabase = await createClient();
+    const { error } = await supabase.from("email_leads").insert({
+      email: email.toLowerCase().trim(),
+      source,
+      source_product_id: sourceProductId ?? null,
+    });
 
-    // Phase 2: Supabase 저장
-    // const supabase = await createClient();
-    // const { error } = await supabase.from("email_leads").insert({
-    //   email: email.toLowerCase(),
-    //   source,
-    //   source_product_id: sourceProductId ?? null,
-    // });
-    // if (error && error.code !== "23505") throw error;
+    if (error && error.code !== "23505") {
+      throw error;
+    }
 
     return NextResponse.json({ success: true });
   } catch {

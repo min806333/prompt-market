@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -22,6 +24,10 @@ export async function POST(req: NextRequest) {
 
   if (!creatorId) {
     return NextResponse.json({ error: "creatorId is required" }, { status: 400 });
+  }
+
+  if (!UUID_REGEX.test(creatorId)) {
+    return NextResponse.json({ error: "Invalid creatorId format" }, { status: 400 });
   }
 
   if (creatorId === user.id) {

@@ -1,4 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "관리자 대시보드 — Promto Admin" };
@@ -33,7 +35,34 @@ function StatCard({
   );
 }
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const lp = locale === "ko" ? "" : `/${locale}`;
+
+  // Server-side admin role verification
+  const client = await createClient();
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+
+  if (!user) {
+    redirect(`${lp}/auth/login`);
+  }
+
+  const { data: profile } = await client
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || profile.role !== "admin") {
+    redirect(lp || "/");
+  }
+
   const sb = createServiceClient();
 
   const today = new Date();
@@ -67,6 +96,16 @@ export default async function AdminDashboardPage() {
 
   const totalRevenue =
     revenueRows?.reduce((s, r) => s + (Number(r.amount) || 0), 0) ?? 0;
+
+  const menuItems = [
+    { href: `${lp}/admin/reports?status=pending`, label: "신고 처리", badge: pendingReports, icon: "🚨", color: "text-red-600" },
+    { href: `${lp}/admin/products?status=pending`, label: "프롬프트 승인", badge: pendingProducts, icon: "⏳", color: "text-orange-600" },
+    { href: `${lp}/admin/support`, label: "고객 문의", badge: openTickets, icon: "💬", color: "text-teal-600" },
+    { href: `${lp}/admin/users`, label: "사용자 관리", badge: null, icon: "👥", color: "text-blue-600" },
+    { href: `${lp}/admin/orders`, label: "주문 조회", badge: null, icon: "💳", color: "text-green-600" },
+    { href: `${lp}/admin/announcements`, label: "공지 작성", badge: null, icon: "📢", color: "text-indigo-600" },
+    { href: `${lp}/admin/products`, label: "전체 프롬프트", badge: null, icon: "📝", color: "text-purple-600" },
+  ];
 
   return (
     <div className="p-8">
@@ -128,15 +167,7 @@ export default async function AdminDashboardPage() {
       <div className="mt-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
         <h2 className="font-semibold text-gray-900 dark:text-white mb-4">빠른 관리 메뉴</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {[
-            { href: "/admin/reports?status=pending", label: "신고 처리", badge: pendingReports, icon: "🚨", color: "text-red-600" },
-            { href: "/admin/products?status=pending", label: "프롬프트 승인", badge: pendingProducts, icon: "⏳", color: "text-orange-600" },
-            { href: "/admin/support", label: "고객 문의", badge: openTickets, icon: "💬", color: "text-teal-600" },
-            { href: "/admin/users", label: "사용자 관리", badge: null, icon: "👥", color: "text-blue-600" },
-            { href: "/admin/orders", label: "주문 조회", badge: null, icon: "💳", color: "text-green-600" },
-            { href: "/admin/announcements", label: "공지 작성", badge: null, icon: "📢", color: "text-indigo-600" },
-            { href: "/admin/products", label: "전체 프롬프트", badge: null, icon: "📝", color: "text-purple-600" },
-          ].map((item) => (
+          {menuItems.map((item) => (
             <a
               key={item.href}
               href={item.href}

@@ -47,7 +47,7 @@ export function getClientIp(req: Request): string {
   const forwarded = req.headers.get("x-forwarded-for");
   if (forwarded) {
     const ips = forwarded.split(",").map((s) => s.trim());
-    return ips[ips.length - 1];
+    return ips[0];
   }
   return "unknown";
 }

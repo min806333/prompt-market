@@ -15,7 +15,21 @@
     "purchaseHistory": "Purchases",
     "myProducts": "My Products",
     "settings": "Settings",
-    "user": "User"
+    "user": "User",
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your account",
+    "loginSuccess": "Logged in successfully!",
+    "loginError": "Invalid email or password.",
+    "loggingIn": "Signing in...",
+    "googleContinue": "Continue with Google",
+    "orEmail": "or with email",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "emailVerifySent": "Check your email for a verification link!",
+    "passwordMismatch": "Passwords do not match.",
+    "signupLoading": "Creating account..."
   },
   "header": {
     "searchAriaLabel": "Search",
@@ -299,8 +313,16 @@
     "plan": {
       "free": "Free Plan",
       "pro": "Pro Plan",
+      "creator": "Creator Plan",
+      "premium": "Premium Plan",
       "upgrade": "Upgrade to Pro"
     }
+  },
+  "announcement": {
+    "notice": "Notice",
+    "update": "Update",
+    "event": "Event",
+    "close": "Close"
   },
   "playground": {
     "title": "Prompt Playground",

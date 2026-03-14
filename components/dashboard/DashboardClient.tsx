@@ -13,7 +13,7 @@ import { useTranslations, useLocale } from "next-intl";
 type Tab = "overview" | "purchases" | "selling" | "settings";
 
 export default function DashboardClient() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, subscriptionStatus } = useAuth();
   const router = useRouter();
   const locale = useLocale();
   const lp = locale === "en" ? "/en" : "";
@@ -88,8 +88,22 @@ export default function DashboardClient() {
                 </div>
                 <p className="font-semibold text-gray-900 dark:text-white">{userName}</p>
                 <p className="text-xs text-gray-400 mt-1 truncate w-full">{user.email}</p>
-                <span className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
-                  {t("plan.free")}
+                <span className={`mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  subscriptionStatus === "premium"
+                    ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300"
+                    : subscriptionStatus === "creator"
+                    ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
+                    : subscriptionStatus === "pro"
+                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                    : "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+                }`}>
+                  {subscriptionStatus === "premium"
+                    ? t("plan.premium")
+                    : subscriptionStatus === "creator"
+                    ? t("plan.creator")
+                    : subscriptionStatus === "pro"
+                    ? t("plan.pro")
+                    : t("plan.free")}
                 </span>
               </div>
             </div>
@@ -130,7 +144,7 @@ export default function DashboardClient() {
                   {[
                     { label: t("stats.purchased"), value: "0", icon: "🛍️", color: "bg-blue-50 dark:bg-blue-900/20" },
                     { label: t("stats.selling"), value: "0", icon: "💰", color: "bg-green-50 dark:bg-green-900/20" },
-                    { label: t("stats.subscription"), value: t("plan.free"), icon: "⭐", color: "bg-yellow-50 dark:bg-yellow-900/20" },
+                    { label: t("stats.subscription"), value: subscriptionStatus === "premium" ? t("plan.premium") : subscriptionStatus === "creator" ? t("plan.creator") : subscriptionStatus === "pro" ? t("plan.pro") : t("plan.free"), icon: "⭐", color: "bg-yellow-50 dark:bg-yellow-900/20" },
                   ].map((stat) => (
                     <div
                       key={stat.label}
