@@ -16,7 +16,7 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, isAdmin } = useAuth();
   const router = useRouter();
   const t = useTranslations("nav");
   const tAuth = useTranslations("auth");
@@ -165,6 +165,15 @@ export default function Header() {
                           >
                             <span>⚙️</span> {tAuth("settings")}
                           </Link>
+                          {isAdmin && (
+                            <Link
+                              href={`${lp}/admin`}
+                              onClick={() => setProfileOpen(false)}
+                              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                            >
+                              <span>🛡️</span> 관리자 대시보드
+                            </Link>
+                          )}
                           <div className="border-t border-gray-100 dark:border-gray-800 mt-1 pt-1">
                             <button
                               onClick={handleSignOut}

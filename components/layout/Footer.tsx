@@ -30,6 +30,7 @@ export default function Footer() {
       links: [
         { label: t("links.announcements"), href: "/announcements" },
         { label: t("links.mypage"), href: "/dashboard" },
+        { label: t("links.support"), href: "/support" },
       ],
     },
     {
