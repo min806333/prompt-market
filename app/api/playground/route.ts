@@ -100,6 +100,48 @@ async function generateMusic_MusicGen(prompt: string): Promise<string> {
   return url;
 }
 
+// ── Kling AI image generation (Kolors) ───────────────────────────────────────
+async function generateImage_Kling(prompt: string): Promise<string> {
+  const token = generateKlingJWT();
+  const res = await fetch("https://api.klingai.com/v1/images/text2image", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model_name: "kolors-v1",
+      prompt,
+      n: 1,
+      aspect_ratio: "16:9",
+      image_format: "jpg",
+    }),
+  });
+  if (!res.ok) throw new Error(`Kling Image API error ${res.status}`);
+
+  const data = await res.json() as { data?: { task_id?: string } };
+  const taskId = data.data?.task_id;
+  if (!taskId) throw new Error("No task ID from Kling Image");
+
+  for (let i = 0; i < 12; i++) {
+    await new Promise((r) => setTimeout(r, 3000));
+    const poll = await fetch(`https://api.klingai.com/v1/images/text2image/${taskId}`, {
+      headers: { Authorization: `Bearer ${generateKlingJWT()}` },
+    });
+    if (poll.ok) {
+      const s = await poll.json() as {
+        data?: { task_status?: string; task_result?: { images?: { url?: string }[] } };
+      };
+      if (s.data?.task_status === "succeed") {
+        const url = s.data?.task_result?.images?.[0]?.url;
+        if (url) return url;
+      }
+      if (s.data?.task_status === "failed") throw new Error("Kling Image generation failed");
+    }
+  }
+  throw new Error("Kling Image timed out after 36s");
+}
+
 // Kling AI JWT 생성 (Access Key ID + Secret 방식)
 function generateKlingJWT(): string {
   const ak = process.env.KLING_ACCESS_KEY_ID ?? "";
@@ -298,7 +340,31 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Kling AI (real generation) ───────────────────────────────────────────
+  // ── Kling AI image (Kolors) ──────────────────────────────────────────────
+  if (modelKey === "kling-image") {
+    if (!process.env.KLING_ACCESS_KEY_ID || !process.env.KLING_ACCESS_KEY_SECRET) {
+      return NextResponse.json(
+        { error: "Kling API 키가 설정되지 않았습니다. 관리자에게 문의하세요.", remainingToday: remaining + 1 },
+        { status: 503 }
+      );
+    }
+    try {
+      const imageUrl = await generateImage_Kling(promptText);
+      await logUsage();
+      return NextResponse.json({
+        content: "Kling Kolors 이미지 생성 완료",
+        imageUrl,
+        resultType: "image",
+        model: "kling-image",
+        remainingToday: remaining,
+      });
+    } catch (e) {
+      console.error("Kling Image error:", e);
+      return NextResponse.json({ error: `Kling 이미지 오류: ${(e as Error).message}` }, { status: 500 });
+    }
+  }
+
+  // ── Kling AI video ───────────────────────────────────────────────────────
   if (modelKey === "kling") {
     if (!process.env.KLING_ACCESS_KEY_ID || !process.env.KLING_ACCESS_KEY_SECRET) {
       return NextResponse.json(
