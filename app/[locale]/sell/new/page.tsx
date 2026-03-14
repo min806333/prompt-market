@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import Container from "@/components/layout/Container";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -36,6 +37,8 @@ interface UploadedFile {
 export default function NewProductPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const locale = useLocale();
+  const lp = locale === "ko" ? "" : `/${locale}`;
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -142,7 +145,7 @@ export default function NewProductPage() {
     // Phase 2: Supabase Storage 업로드 + seller_products INSERT
     await new Promise((r) => setTimeout(r, 1200));
     toast.success("상품 등록 신청이 완료되었습니다! 24시간 내 심사 결과를 알려드립니다.");
-    router.push("/dashboard");
+    router.push(`${lp}/dashboard`);
   };
 
   const formatFileSize = (bytes: number) => {
@@ -162,7 +165,7 @@ export default function NewProductPage() {
         {!loading && !user && (
           <div className="text-center py-20">
             <p className="text-gray-600 dark:text-gray-400 mb-4">로그인 후 이용 가능합니다.</p>
-            <a href="/auth/login" className="inline-block px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition">로그인</a>
+            <a href={`${lp}/auth/login`} className="inline-block px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition">로그인</a>
           </div>
         )}
         {loading && (
@@ -177,7 +180,7 @@ export default function NewProductPage() {
             <p className="text-sm font-semibold text-green-800 dark:text-green-300">
               현재 내 판매 수익: <strong>{revenueShare}%</strong>
               {revenueShare < 90 && (
-                <a href="/pricing" className="ml-2 text-xs underline text-green-700 dark:text-green-400">플랜 업그레이드로 최대 90%까지 →</a>
+                <a href={`${lp}/pricing`} className="ml-2 text-xs underline text-green-700 dark:text-green-400">플랜 업그레이드로 최대 90%까지 →</a>
               )}
             </p>
             <p className="text-xs text-green-600 dark:text-green-500 mt-0.5">
@@ -366,13 +369,13 @@ export default function NewProductPage() {
           <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 p-4 flex items-start gap-3">
             <span className="text-xl">💡</span>
             <div className="text-sm text-indigo-700 dark:text-indigo-300">
-              <strong>수수료 안내:</strong> 판매 금액의 10%가 플랫폼 운영 수수료로 공제되고,
-              <strong> 90%가 판매자에게 정산</strong>됩니다.
+              <strong>수수료 안내:</strong> 판매 금액의 {100 - revenueShare}%가 플랫폼 운영 수수료로 공제되고,
+              <strong> {revenueShare}%가 판매자에게 정산</strong>됩니다.
             </div>
           </div>
 
           <div className="flex gap-4">
-            <a href="/sell" className="flex-1 inline-flex items-center justify-center font-semibold rounded-xl px-5 py-2.5 text-sm border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+            <a href={`${lp}/sell`} className="flex-1 inline-flex items-center justify-center font-semibold rounded-xl px-5 py-2.5 text-sm border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
               취소
             </a>
             <button type="submit" disabled={submitting}

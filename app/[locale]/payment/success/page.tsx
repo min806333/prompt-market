@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import Container from "@/components/layout/Container";
 import Button from "@/components/ui/Button";
 
-export const metadata: Metadata = { title: "결제 완료" };
+export const metadata: Metadata = { title: "결제 완료 | Promto" };
 
 interface Props {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ product?: string }>;
 }
 
-export default async function PaymentSuccessPage({ searchParams }: Props) {
+export default async function PaymentSuccessPage({ params, searchParams }: Props) {
+  const { locale } = await params;
   const { product } = await searchParams;
+  const lp = locale === "ko" ? "" : `/${locale}`;
 
   return (
     <div className="py-20">
@@ -39,13 +42,13 @@ export default async function PaymentSuccessPage({ searchParams }: Props) {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button href="/dashboard" size="lg">마이페이지로 이동</Button>
+            <Button href={`${lp}/dashboard`} size="lg">마이페이지로 이동</Button>
             {product && (
-              <Button href={`/products/${product}`} size="lg" variant="outline">
+              <Button href={`${lp}/products/${product}`} size="lg" variant="outline">
                 상품으로 돌아가기
               </Button>
             )}
-            <Button href="/products" size="lg" variant="ghost">다른 상품 보기</Button>
+            <Button href={`${lp}/products`} size="lg" variant="ghost">다른 상품 보기</Button>
           </div>
         </div>
       </Container>

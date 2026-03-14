@@ -5,7 +5,10 @@ import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
   if (!rateLimit(ip, { limit: 10, windowMs: 60 * 1000 })) {
-    return NextResponse.json({ error: "요청이 너무 많습니다." }, { status: 429 });
+    return NextResponse.json(
+      { error: "요청이 너무 많습니다." },
+      { status: 429, headers: { "Retry-After": "60" } }
+    );
   }
 
   const supabase = await createClient();

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { rateLimit } from "@/lib/security/rateLimit";
+import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -42,10 +42,13 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  const allowed = rateLimit(`comments:${ip}`, { limit: 10, windowMs: 60_000 });
+  const ip = getClientIp(req);
+  const allowed = rateLimit(ip, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ error: "요청이 너무 많습니다. 잠시 후 다시 시도하세요." }, { status: 429 });
+    return NextResponse.json(
+      { error: "요청이 너무 많습니다. 잠시 후 다시 시도하세요." },
+      { status: 429, headers: { "Retry-After": "60" } }
+    );
   }
 
   const supabase = await createClient();

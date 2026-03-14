@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import Container from "@/components/layout/Container";
 import Button from "@/components/ui/Button";
 
-export const metadata: Metadata = { title: "결제 취소" };
+export const metadata: Metadata = { title: "결제 취소 | Promto" };
 
 interface Props {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ product?: string }>;
 }
 
-export default async function PaymentCancelPage({ searchParams }: Props) {
+export default async function PaymentCancelPage({ params, searchParams }: Props) {
+  const { locale } = await params;
   const { product } = await searchParams;
+  const lp = locale === "ko" ? "" : `/${locale}`;
 
   return (
     <div className="py-20">
@@ -30,10 +33,10 @@ export default async function PaymentCancelPage({ searchParams }: Props) {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button href={product ? `/products/${product}` : "/products"} size="lg">
+            <Button href={product ? `${lp}/products/${product}` : `${lp}/products`} size="lg">
               다시 시도하기
             </Button>
-            <Button href="/samples" size="lg" variant="outline">무료 샘플 받기</Button>
+            <Button href={`${lp}/samples`} size="lg" variant="outline">무료 샘플 받기</Button>
           </div>
 
           <p className="mt-8 text-xs text-gray-400">결제 관련 문의는 이메일로 연락해주세요.</p>
