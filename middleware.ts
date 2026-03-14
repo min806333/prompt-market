@@ -9,7 +9,7 @@ const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
   localePrefix: "as-needed",
-  localeDetection: true,
+  localeDetection: false,
 });
 
 const PROTECTED_ROUTES = ["/dashboard", "/sell/new", "/admin"];
@@ -83,6 +83,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api/|auth/callback).*)",
   ],
 };
