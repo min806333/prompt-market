@@ -83,35 +83,20 @@ async function generateImage_Flux(prompt: string): Promise<string> {
   return url;
 }
 
-async function generateMusic_Udio(prompt: string): Promise<string> {
-  const res = await fetch("https://api.udio.com/v1/generations", {
+async function generateMusic_MusicGen(prompt: string): Promise<string> {
+  const res = await fetch("https://fal.run/fal-ai/musicgen", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.UDIO_API_KEY}`,
+      Authorization: `Key ${process.env.FAL_KEY}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ prompt, duration: 30 }),
   });
-  if (!res.ok) throw new Error(`Udio API error ${res.status}`);
-
-  const data = await res.json() as { audio_url?: string; task_id?: string; id?: string };
-  if (data.audio_url) return data.audio_url;
-
-  const taskId = data.task_id ?? data.id;
-  if (!taskId) throw new Error("No task ID from Udio");
-
-  for (let i = 0; i < 10; i++) {
-    await new Promise((r) => setTimeout(r, 5000));
-    const poll = await fetch(`https://api.udio.com/v1/generations/${taskId}`, {
-      headers: { Authorization: `Bearer ${process.env.UDIO_API_KEY}` },
-    });
-    if (poll.ok) {
-      const s = await poll.json() as { status?: string; audio_url?: string };
-      if (s.status === "completed" && s.audio_url) return s.audio_url;
-      if (s.status === "failed") throw new Error("Udio generation failed");
-    }
-  }
-  throw new Error("Udio timed out after 50s");
+  if (!res.ok) throw new Error(`MusicGen error ${res.status}`);
+  const data = await res.json() as { audio?: { url?: string }; audio_file?: { url?: string } };
+  const url = data.audio?.url ?? data.audio_file?.url;
+  if (!url) throw new Error("No audio URL from MusicGen");
+  return url;
 }
 
 async function generateVideo_Kling(prompt: string): Promise<string> {
@@ -276,27 +261,27 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Udio (real generation) ───────────────────────────────────────────────
-  if (modelKey === "udio") {
-    if (!process.env.UDIO_API_KEY) {
+  // ── fal.ai MusicGen (real generation) ──────────────────────────────────────
+  if (modelKey === "musicgen") {
+    if (!process.env.FAL_KEY) {
       return NextResponse.json(
-        { error: "Udio API 키가 설정되지 않았습니다. 관리자에게 문의하세요.", remainingToday: remaining + 1 },
+        { error: "fal.ai API 키가 설정되지 않았습니다. 관리자에게 문의하세요.", remainingToday: remaining + 1 },
         { status: 503 }
       );
     }
     try {
-      const audioUrl = await generateMusic_Udio(promptText);
+      const audioUrl = await generateMusic_MusicGen(promptText);
       await logUsage();
       return NextResponse.json({
-        content: "Udio 음악 생성 완료",
+        content: "MusicGen 음악 생성 완료",
         audioUrl,
         resultType: "audio",
-        model: "udio",
+        model: "musicgen",
         remainingToday: remaining,
       });
     } catch (e) {
-      console.error("Udio error:", e);
-      return NextResponse.json({ error: `Udio 오류: ${(e as Error).message}` }, { status: 500 });
+      console.error("MusicGen error:", e);
+      return NextResponse.json({ error: `MusicGen 오류: ${(e as Error).message}` }, { status: 500 });
     }
   }
 

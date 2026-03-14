@@ -75,7 +75,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
     { value: "gpt-4o", label: "GPT-4o", desc: "✨ Text", badge: "API" },
     { value: "dalle", label: "DALL-E 3", desc: "🎨 Image", badge: "API" },
     { value: "flux", label: "Flux", desc: "🎨 Image", badge: "API" },
-    { value: "udio", label: "Udio", desc: "🎵 Music", badge: "API" },
+    { value: "musicgen", label: "MusicGen", desc: "🎵 Music", badge: "API" },
     { value: "kling", label: "Kling AI", desc: "🎬 Video", badge: "API" },
     { value: "suno", label: "Suno", desc: "🎵 Music", badge: "Copy" },
     { value: "midjourney", label: "Midjourney", desc: "🎨 Image", badge: "Copy" },
@@ -402,8 +402,8 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
                 {["dalle", "flux"].includes(model) && (
                   <p className="text-xs mt-2 text-gray-400">이미지 생성 중... (10~20초)</p>
                 )}
-                {model === "udio" && (
-                  <p className="text-xs mt-2 text-gray-400">음악 생성 중... (최대 50초)</p>
+                {model === "musicgen" && (
+                  <p className="text-xs mt-2 text-gray-400">음악 생성 중... (10~20초)</p>
                 )}
                 {model === "kling" && (
                   <p className="text-xs mt-2 text-gray-400">영상 생성 중... (최대 50초)</p>
@@ -437,7 +437,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
         <ul className="text-sm text-indigo-700 dark:text-indigo-400 space-y-1">
           <li>• 무료 사용자는 로그인 후 <strong>하루 3회</strong> 테스트 가능</li>
           <li>• Pro 구독자는 <strong>하루 20회</strong> 테스트 가능</li>
-          <li>• <strong className="text-green-700">API</strong> 모델: 사이트 내에서 직접 생성 (DALL-E 3, Flux, Udio, Kling)</li>
+          <li>• <strong className="text-green-700">API</strong> 모델: 사이트 내에서 직접 생성 (DALL-E 3, Flux, MusicGen, Kling)</li>
           <li>• <strong className="text-gray-600">Copy</strong> 모델: 프롬프트 복사 → 외부 사이트에서 생성 (Suno, Midjourney, Runway, Pika)</li>
         </ul>
       </div>
