@@ -171,7 +171,7 @@ export default function Header() {
                               onClick={() => setProfileOpen(false)}
                               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
                             >
-                              <span>🛡️</span> 관리자 대시보드
+                              <span>🛡️</span> {tAuth("admin")}
                             </Link>
                           )}
                           <div className="border-t border-gray-100 dark:border-gray-800 mt-1 pt-1">

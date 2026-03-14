@@ -1,48 +1,50 @@
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Container from "./Container";
 
 export default function Footer() {
   const t = useTranslations("footer");
   const tLegal = useTranslations("legal");
+  const locale = useLocale();
+  const lp = locale === "en" ? "/en" : "";
 
   const footerLinks = [
     {
       title: t("sections.market"),
       links: [
-        { label: t("links.allProducts"), href: "/products" },
-        { label: t("links.leaderboard"), href: "/leaderboard" },
-        { label: t("links.gameDevPack"), href: "/collections/game-dev" },
-        { label: t("links.freeSamples"), href: "/samples" },
+        { label: t("links.allProducts"), href: `${lp}/products` },
+        { label: t("links.leaderboard"), href: `${lp}/leaderboard` },
+        { label: t("links.gameDevPack"), href: `${lp}/collections/game-dev` },
+        { label: t("links.freeSamples"), href: `${lp}/samples` },
       ],
     },
     {
       title: t("sections.services"),
       links: [
-        { label: t("links.playground"), href: "/playground" },
-        { label: t("links.builder"), href: "/builder" },
-        { label: t("links.sell"), href: "/sell" },
-        { label: t("links.pricing"), href: "/pricing" },
+        { label: t("links.playground"), href: `${lp}/playground` },
+        { label: t("links.builder"), href: `${lp}/builder` },
+        { label: t("links.sell"), href: `${lp}/sell` },
+        { label: t("links.pricing"), href: `${lp}/pricing` },
       ],
     },
     {
       title: t("sections.info"),
       links: [
-        { label: t("links.announcements"), href: "/announcements" },
-        { label: t("links.mypage"), href: "/dashboard" },
-        { label: t("links.support"), href: "/support" },
+        { label: t("links.announcements"), href: `${lp}/announcements` },
+        { label: t("links.mypage"), href: `${lp}/dashboard` },
+        { label: t("links.support"), href: `${lp}/support` },
       ],
     },
     {
       title: t("sections.legal"),
       links: [
-        { label: tLegal("terms"), href: "/legal/terms" },
-        { label: tLegal("privacy"), href: "/legal/privacy" },
-        { label: tLegal("refund"), href: "/legal/refund" },
-        { label: tLegal("content"), href: "/legal/content" },
-        { label: tLegal("copyright"), href: "/legal/copyright" },
-        { label: tLegal("cookie"), href: "/legal/cookie" },
-        { label: tLegal("dmca"), href: "/legal/dmca" },
+        { label: tLegal("terms"), href: `${lp}/legal/terms` },
+        { label: tLegal("privacy"), href: `${lp}/legal/privacy` },
+        { label: tLegal("refund"), href: `${lp}/legal/refund` },
+        { label: tLegal("content"), href: `${lp}/legal/content` },
+        { label: tLegal("copyright"), href: `${lp}/legal/copyright` },
+        { label: tLegal("cookie"), href: `${lp}/legal/cookie` },
+        { label: tLegal("dmca"), href: `${lp}/legal/dmca` },
       ],
     },
   ];
@@ -52,7 +54,7 @@ export default function Footer() {
       <Container>
         <div className="py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10">
           <div className="md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-3">
+            <Link href={lp || "/"} className="flex items-center gap-2 mb-3">
               <span className="text-2xl">⚡</span>
               <span className="font-bold text-lg text-white">PromptMarket</span>
             </Link>

@@ -235,6 +235,7 @@
     "gameDesignLabel": "게임 기획서"
   },
   "dashboard": {
+    "metaTitle": "마이페이지 | Promto",
     "greeting": "안녕하세요, {name}님!",
     "tabs": {
       "overview": "개요",
@@ -255,7 +256,9 @@
       "empty": "구매한 상품이 없습니다.",
       "browse": "상품 둘러보기",
       "download": "다운로드",
-      "viewProduct": "상품 보기"
+      "viewProduct": "상품 보기",
+      "metaTitle": "구매 내역 | Promto",
+      "metaDesc": "구매한 프롬프트 내역을 확인하세요."
     },
     "selling": {
       "title": "내 판매 상품",
@@ -290,7 +293,8 @@
       "themeLabel": "다크 모드",
       "themeDesc": "라이트/다크 모드 전환",
       "language": "언어 설정",
-      "languageDesc": "표시 언어를 변경합니다"
+      "languageDesc": "표시 언어를 변경합니다",
+      "metaTitle": "설정 | Promto"
     },
     "plan": {
       "free": "무료 플랜",
@@ -391,7 +395,125 @@
     "new": "신상품",
     "featured": "추천",
     "bundle": "번들",
-    "limited": "한정"
+    "limited": "한정",
+    "admin": "관리자 대시보드"
+  },
+  "leaderboard": {
+    "title": "리더보드",
+    "metaTitle": "리더보드 | Promto",
+    "metaDesc": "가장 인기 있는 AI 프롬프트를 한 눈에 확인하세요.",
+    "subtitle": "가장 인기 있는 프롬프트를 한 눈에",
+    "trending": "🔥 트렌딩",
+    "topRated": "⭐ 최고 평점",
+    "mostSold": "💰 최다 판매",
+    "empty": "아직 데이터가 없습니다.",
+    "top3Label": "TOP 3",
+    "othersLabel": "그 외",
+    "soldCount": "{count}건 판매",
+    "viewCollection": "컬렉션 보기 →",
+    "free": "무료",
+    "collections": {
+      "gameDev": "게임 개발자 필수",
+      "youtube": "유튜브 크리에이터",
+      "appLaunch": "앱 출시 준비"
+    }
+  },
+  "product": {
+    "metaTitle": "{title} | Promto",
+    "difficulty": {
+      "beginner": "초급",
+      "intermediate": "중급",
+      "advanced": "고급"
+    },
+    "tabs": {
+      "description": "상세 설명",
+      "prompts": "샘플 프롬프트 ({count}종)",
+      "tips": "사용 팁",
+      "results": "결과 예시"
+    },
+    "copied": "프롬프트가 클립보드에 복사되었습니다!",
+    "linkCopied": "링크가 클립보드에 복사되었습니다!",
+    "filePending": "파일 준비 중입니다. 잠시 후 다시 시도해주세요.",
+    "viewProfile": "프로필 보기 →",
+    "sellerStats": "판매 {count}개 · 평점 {rating}",
+    "stockRemaining": "({count}개 남음)",
+    "buyNow": "구매하기",
+    "downloadFree": "무료 다운로드",
+    "testPlayground": "Playground에서 테스트",
+    "favorite": "즐겨찾기",
+    "share": "공유",
+    "category": "카테고리",
+    "relatedPrompts": "관련 프롬프트",
+    "supportedAI": "지원 AI",
+    "promptCount": "프롬프트 수",
+    "fileFormat": "파일 형식",
+    "version": "버전",
+    "license": "라이선스",
+    "createdBy": "제작자",
+    "soldBy": "판매자",
+    "sampleLabel": "샘플 #{num}",
+    "copyPrompt": "복사",
+    "copiedPrompt": "✓ 복사됨",
+    "fullCountLabel": "구매 후 전체 {count}종 제공",
+    "vatNote": "VAT 미포함 · 즉시 다운로드",
+    "instantDownload": "구매 후 즉시 다운로드 가능",
+    "difficultyLabel": "난이도",
+    "salesCountLabel": "판매 수",
+    "testBefore": "구매 전 테스트해보기",
+    "shareBtn": "공유하기"
+  },
+  "builder": {
+    "metaTitle": "프롬프트 빌더 | Promto",
+    "metaDesc": "AI에게 최적화된 프롬프트를 구조화된 입력으로 쉽게 생성하세요."
+  },
+  "sell": {
+    "metaTitle": "판매하기 | Promto",
+    "metaDesc": "AI 프롬프트를 등록하고 수익을 창출하세요.",
+    "hero": {
+      "badge": "💰 Creator Marketplace",
+      "titleLine1": "당신의 프롬프트로",
+      "titleLine2": "수익을 창출하세요",
+      "subtitle": "무료 가입만으로 즉시 판매 시작. 구독 플랜으로 수익률을 70% → 95%까지 높이세요.",
+      "ctaStart": "무료로 판매 시작",
+      "ctaCompare": "수익률 높이기 →",
+      "noCard": "신용카드 불필요 · 가입 즉시 판매 가능"
+    },
+    "revenueSection": {
+      "title": "플랜별 수익 구조",
+      "subtitle": "플랜을 업그레이드할수록 더 많은 수익을 가져갑니다",
+      "sellerRevenue": "판매자 수익",
+      "platformFee": "플랫폼 수수료 {pct}"
+    },
+    "earningsSection": {
+      "title": "수익 예시",
+      "subtitle": "실제 판매 상황에서 예상 수익을 확인하세요",
+      "price": "상품 가격",
+      "quantity": "판매 수량",
+      "quantityUnit": "{count}건",
+      "totalRevenue": "총 매출",
+      "platformFee": "플랫폼 수수료 ({pct}%)",
+      "myRevenue": "내 수익"
+    },
+    "stepsSection": { "title": "판매 프로세스", "subtitle": "4단계로 쉽게 시작할 수 있습니다" },
+    "cta": {
+      "title": "지금 바로 시작하세요",
+      "desc": "무료 가입 후 즉시 판매 시작 — 수익의 70%는 바로 내 것입니다.",
+      "desc2": "Pro/Creator 플랜으로 업그레이드하면 수익률이 80~95%로 올라갑니다.",
+      "startFree": "무료로 판매 시작",
+      "comparePlans": "플랜 비교하기"
+    },
+    "steps": [
+      { "step": "01", "title": "회원가입 & 상품 등록", "desc": "무료 가입 후 프롬프트 파일과 설명을 작성해 즉시 등록합니다.", "icon": "📝" },
+      { "step": "02", "title": "심사 및 승인", "desc": "품질 기준을 통과한 상품이 마켓에 노출됩니다. 보통 24시간 이내.", "icon": "✅" },
+      { "step": "03", "title": "판매 시작", "desc": "구매자가 결제하면 자동으로 파일이 전달됩니다.", "icon": "🚀" },
+      { "step": "04", "title": "수익 정산", "desc": "판매 금액의 70~95%가 Stripe를 통해 정기 정산됩니다.", "icon": "💰" }
+    ],
+    "tiers": [
+      { "plan": "Free", "price": "무료", "share": "70%", "platform": "30%", "highlights": ["즉시 판매 시작", "기본 상품 등록"] },
+      { "plan": "Pro", "price": "$9/월", "share": "80%", "platform": "20%", "highlights": ["+10% 수익", "Creator 통계 대시보드", "검색 노출 향상"] },
+      { "plan": "Creator", "price": "$19/월", "share": "90%", "platform": "10%", "highlights": ["+20% 수익", "우선 노출", "Prompt Drop 기능", "Creator 배지"] },
+      { "plan": "Premium", "price": "$29/월", "share": "95%", "platform": "5%", "highlights": ["Creator 모든 기능", "라이브러리 전체 접근", "무제한 Playground"] }
+    ]
   },
   "pricing": {
     "metaTitle": "요금제 | Promto",

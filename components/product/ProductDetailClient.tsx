@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import type { Prompt } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import Badge from "@/components/ui/Badge";
@@ -13,9 +14,6 @@ interface ProductDetailClientProps {
 
 type TabKey = "description" | "prompts" | "tips" | "results";
 
-const difficultyLabel: Record<string, string> = {
-  beginner: "초급", intermediate: "중급", advanced: "고급",
-};
 const difficultyColor: Record<string, string> = {
   beginner: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
   intermediate: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -26,13 +24,16 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const [tab, setTab] = useState<TabKey>("description");
   const [copied, setCopied] = useState<number | null>(null);
   const toast = useToast();
+  const t = useTranslations("product");
+  const locale = useLocale();
+  const lp = locale === "en" ? "/en" : "";
 
   const sampleTexts = product.samples?.map((s) => s.sampleText) ?? [];
 
   function copyPrompt(text: string, idx: number) {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(idx);
-      toast.success("프롬프트가 클립보드에 복사되었습니다!");
+      toast.success(t("copied"));
       setTimeout(() => setCopied(null), 2000);
     });
   }
@@ -43,7 +44,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       navigator.share({ title: product.title, url }).catch(() => null);
     } else {
       navigator.clipboard.writeText(url).then(() => {
-        toast.success("링크가 클립보드에 복사되었습니다!");
+        toast.success(t("linkCopied"));
       });
     }
   }
@@ -53,7 +54,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       if (product.fileUrls[0]) {
         window.open(product.fileUrls[0], "_blank");
       } else {
-        toast.info("파일 준비 중입니다. 잠시 후 다시 시도해주세요.");
+        toast.info(t("filePending"));
       }
       return;
     }
@@ -63,10 +64,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   }
 
   const tabs: { key: TabKey; label: string }[] = [
-    { key: "description", label: "상세 설명" },
-    { key: "prompts", label: `샘플 프롬프트 (${sampleTexts.length}종)` },
-    ...(product.usageTips && product.usageTips.length > 0 ? [{ key: "tips" as TabKey, label: "사용 팁" }] : []),
-    ...(product.results && product.results.length > 0 ? [{ key: "results" as TabKey, label: "결과 예시" }] : []),
+    { key: "description", label: t("tabs.description") },
+    { key: "prompts", label: t("tabs.prompts", { count: sampleTexts.length }) },
+    ...(product.usageTips && product.usageTips.length > 0
+      ? [{ key: "tips" as TabKey, label: t("tabs.tips") }]
+      : []),
+    ...(product.results && product.results.length > 0
+      ? [{ key: "results" as TabKey, label: t("tabs.results") }]
+      : []),
   ];
 
   return (
@@ -76,14 +81,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         {/* Meta badges */}
         <div className="flex flex-wrap gap-2 mb-5">
           {product.category && (
-            <Link href={`/products?category=${product.category.slug}`}>
+            <Link href={`${lp}/products?category=${product.category.slug}`}>
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-colors">
                 {product.category.icon} {product.category.name}
               </span>
             </Link>
           )}
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${difficultyColor[product.difficulty]}`}>
-            {difficultyLabel[product.difficulty]}
+            {t(`difficulty.${product.difficulty}`)}
           </span>
           {product.isFree && <Badge variant="free">FREE</Badge>}
           {product.isBundle && (
@@ -93,7 +98,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           )}
           {product.isLimitedDrop && (
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 animate-pulse">
-              LIMITED {product.stockRemaining !== undefined ? `(${product.stockRemaining}개 남음)` : ""}
+              LIMITED{" "}
+              {product.stockRemaining !== undefined
+                ? t("stockRemaining", { count: product.stockRemaining })
+                : ""}
             </span>
           )}
           <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
@@ -104,7 +112,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5 mb-5">
           {product.tags.map((tag) => (
-            <Link key={tag} href={`/products?q=${tag}`}>
+            <Link key={tag} href={`${lp}/products?q=${tag}`}>
               <span className="text-xs px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400 transition-colors">
                 #{tag}
               </span>
@@ -120,7 +128,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <Link href={`/creators/${product.creator.username}`} className="text-sm font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                <Link
+                  href={`${lp}/creators/${product.creator.username}`}
+                  className="text-sm font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                >
                   {product.creator.displayName}
                 </Link>
                 {product.creator.isVerified && (
@@ -129,10 +140,18 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   </svg>
                 )}
               </div>
-              <p className="text-xs text-gray-400">판매 {product.creator.totalSales}개 · 평점 {product.creator.ratingAvg}</p>
+              <p className="text-xs text-gray-400">
+                {t("sellerStats", {
+                  count: product.creator.totalSales,
+                  rating: product.creator.ratingAvg,
+                })}
+              </p>
             </div>
-            <Link href={`/creators/${product.creator.username}`} className="shrink-0 text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
-              프로필 보기 →
+            <Link
+              href={`${lp}/creators/${product.creator.username}`}
+              className="shrink-0 text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              {t("viewProfile")}
             </Link>
           </div>
         )}
@@ -142,19 +161,19 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           className="flex border-b border-gray-200 dark:border-gray-800 mb-6 overflow-x-auto"
           role="tablist"
         >
-          {tabs.map((t) => (
+          {tabs.map((tabItem) => (
             <button
-              key={t.key}
+              key={tabItem.key}
               role="tab"
-              aria-selected={tab === t.key}
-              onClick={() => setTab(t.key)}
+              aria-selected={tab === tabItem.key}
+              onClick={() => setTab(tabItem.key)}
               className={`shrink-0 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
-                tab === t.key
+                tab === tabItem.key
                   ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
                   : "border-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
               }`}
             >
-              {t.label}
+              {tabItem.label}
             </button>
           ))}
         </div>
@@ -170,17 +189,17 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  구매 후 전체 <strong className="text-gray-700 dark:text-gray-300">{product.promptCount}종</strong> 제공
+                  {t("fullCountLabel", { count: product.promptCount })}
                 </p>
                 <Link
-                  href={`/playground?promptId=${product.id}`}
+                  href={`${lp}/playground?promptId=${product.id}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  테스트해보기
+                  {t("testPlayground")}
                 </Link>
               </div>
               {sampleTexts.map((prompt, idx) => (
@@ -190,7 +209,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded">
-                      샘플 #{idx + 1}
+                      {t("sampleLabel", { num: idx + 1 })}
                     </span>
                   </div>
                   <p className="text-sm font-mono text-gray-700 dark:text-gray-300 leading-relaxed pr-20">
@@ -204,7 +223,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                         : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400 hover:text-indigo-600"
                     }`}
                   >
-                    {copied === idx ? "✓ 복사됨" : "복사"}
+                    {copied === idx ? t("copiedPrompt") : t("copyPrompt")}
                   </button>
                 </div>
               ))}
@@ -227,7 +246,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               {product.results?.map((result, idx) => (
                 <div key={idx} className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
                   {result.resultType === "image" && (
-                    <img src={result.resultUrl} alt={result.caption ?? `결과 ${idx + 1}`} className="w-full" />
+                    <img src={result.resultUrl} alt={result.caption ?? `Result ${idx + 1}`} className="w-full" />
                   )}
                   {result.caption && (
                     <p className="text-xs text-gray-500 p-3">{result.caption}</p>
@@ -243,37 +262,37 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       <div className="mt-10 lg:mt-0">
         <div className="sticky top-24 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
           <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400 mb-1">
-            {product.isFree ? "무료" : formatPrice(product.price)}
+            {product.isFree ? t("downloadFree") : formatPrice(product.price)}
           </div>
           {!product.isFree && (
-            <p className="text-xs text-gray-400 mb-5">VAT 미포함 · 즉시 다운로드</p>
+            <p className="text-xs text-gray-400 mb-5">{t("vatNote")}</p>
           )}
 
           <div className="space-y-2.5 mb-6 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">프롬프트 수</span>
-              <span className="font-semibold text-gray-900 dark:text-white">{product.promptCount}종</span>
+              <span className="text-gray-500">{t("promptCount")}</span>
+              <span className="font-semibold text-gray-900 dark:text-white">{product.promptCount}</span>
             </div>
             {product.fileFormat && (
               <div className="flex justify-between">
-                <span className="text-gray-500">파일 형식</span>
+                <span className="text-gray-500">{t("fileFormat")}</span>
                 <span className="font-semibold text-gray-900 dark:text-white">{product.fileFormat}</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-gray-500">난이도</span>
+              <span className="text-gray-500">{t("difficultyLabel")}</span>
               <span className={`px-2 py-0.5 rounded-md text-xs font-semibold ${difficultyColor[product.difficulty]}`}>
-                {difficultyLabel[product.difficulty]}
+                {t(`difficulty.${product.difficulty}`)}
               </span>
             </div>
             {product.salesCount > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-500">판매 수</span>
-                <span className="font-semibold text-gray-900 dark:text-white">{product.salesCount.toLocaleString()}개</span>
+                <span className="text-gray-500">{t("salesCountLabel")}</span>
+                <span className="font-semibold text-gray-900 dark:text-white">{product.salesCount.toLocaleString()}</span>
               </div>
             )}
             <div className="flex flex-col gap-1">
-              <span className="text-gray-500">지원 AI 툴</span>
+              <span className="text-gray-500">{t("supportedAI")}</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {product.aiTools.map((tool) => (
                   <span key={tool} className="px-2 py-0.5 text-xs rounded-md bg-gray-100 dark:bg-gray-800 font-medium text-gray-700 dark:text-gray-300">
@@ -292,18 +311,18 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg"
             }`}
           >
-            {product.isFree ? "무료 다운로드" : "구매하기 →"}
+            {product.isFree ? t("downloadFree") : `${t("buyNow")} →`}
           </button>
 
           <Link
-            href={`/playground?promptId=${product.id}`}
+            href={`${lp}/playground?promptId=${product.id}`}
             className="w-full py-2.5 rounded-xl font-medium text-sm border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors flex items-center justify-center gap-2 mb-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            구매 전 테스트해보기
+            {t("testBefore")}
           </Link>
 
           <button
@@ -313,10 +332,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
             </svg>
-            공유하기
+            {t("shareBtn")}
           </button>
 
-          <p className="mt-3 text-xs text-center text-gray-400">구매 후 즉시 다운로드 가능</p>
+          <p className="mt-3 text-xs text-center text-gray-400">{t("instantDownload")}</p>
         </div>
       </div>
     </div>

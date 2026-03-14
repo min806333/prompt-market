@@ -235,6 +235,7 @@
     "gameDesignLabel": "Game Design Doc"
   },
   "dashboard": {
+    "metaTitle": "My Account | Promto",
     "greeting": "Welcome back, {name}!",
     "tabs": {
       "overview": "Overview",
@@ -255,7 +256,9 @@
       "empty": "No purchases yet.",
       "browse": "Browse Products",
       "download": "Download",
-      "viewProduct": "View Product"
+      "viewProduct": "View Product",
+      "metaTitle": "Purchase History | Promto",
+      "metaDesc": "View your purchased prompts."
     },
     "selling": {
       "title": "My Products",
@@ -290,7 +293,8 @@
       "themeLabel": "Dark Mode",
       "themeDesc": "Toggle between light and dark mode",
       "language": "Language",
-      "languageDesc": "Change the display language"
+      "languageDesc": "Change the display language",
+      "metaTitle": "Settings | Promto"
     },
     "plan": {
       "free": "Free Plan",
@@ -391,7 +395,125 @@
     "new": "New",
     "featured": "Featured",
     "bundle": "Bundle",
-    "limited": "Limited"
+    "limited": "Limited",
+    "admin": "Admin Dashboard"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "metaTitle": "Leaderboard | Promto",
+    "metaDesc": "Discover the most popular AI prompts at a glance.",
+    "subtitle": "Top prompts at a glance",
+    "trending": "🔥 Trending",
+    "topRated": "⭐ Top Rated",
+    "mostSold": "💰 Most Sold",
+    "empty": "No data yet.",
+    "top3Label": "TOP 3",
+    "othersLabel": "Others",
+    "soldCount": "{count} sold",
+    "viewCollection": "View collection →",
+    "free": "Free",
+    "collections": {
+      "gameDev": "Game Dev Essentials",
+      "youtube": "YouTube Creators",
+      "appLaunch": "App Launch Ready"
+    }
+  },
+  "product": {
+    "metaTitle": "{title} | Promto",
+    "difficulty": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "tabs": {
+      "description": "Description",
+      "prompts": "Sample Prompts ({count})",
+      "tips": "Usage Tips",
+      "results": "Result Examples"
+    },
+    "copied": "Prompt copied to clipboard!",
+    "linkCopied": "Link copied to clipboard!",
+    "filePending": "File is being prepared. Please try again shortly.",
+    "viewProfile": "View Profile →",
+    "sellerStats": "{count} sales · {rating} rating",
+    "stockRemaining": "({count} left)",
+    "buyNow": "Buy Now",
+    "downloadFree": "Download Free",
+    "testPlayground": "Test in Playground",
+    "favorite": "Favorite",
+    "share": "Share",
+    "category": "Category",
+    "relatedPrompts": "Related Prompts",
+    "supportedAI": "Supported AI",
+    "promptCount": "Prompt Count",
+    "fileFormat": "File Format",
+    "version": "Version",
+    "license": "License",
+    "createdBy": "Created by",
+    "soldBy": "Sold by",
+    "sampleLabel": "Sample #{num}",
+    "copyPrompt": "Copy",
+    "copiedPrompt": "✓ Copied",
+    "fullCountLabel": "{count} prompts included after purchase",
+    "vatNote": "VAT not included · Instant download",
+    "instantDownload": "Instant download after purchase",
+    "difficultyLabel": "Difficulty",
+    "salesCountLabel": "Sales",
+    "testBefore": "Test before buying",
+    "shareBtn": "Share"
+  },
+  "builder": {
+    "metaTitle": "Prompt Builder | Promto",
+    "metaDesc": "Create AI-optimized prompts with structured inputs."
+  },
+  "sell": {
+    "metaTitle": "Start Selling | Promto",
+    "metaDesc": "List your AI prompts and start earning.",
+    "hero": {
+      "badge": "💰 Creator Marketplace",
+      "titleLine1": "Turn your prompts",
+      "titleLine2": "into revenue",
+      "subtitle": "Start selling instantly with a free account. Upgrade to earn up to 95% revenue.",
+      "ctaStart": "Start Selling Free",
+      "ctaCompare": "Compare Plans →",
+      "noCard": "No credit card required · Start selling immediately"
+    },
+    "revenueSection": {
+      "title": "Revenue by Plan",
+      "subtitle": "Upgrade your plan to keep more of what you earn",
+      "sellerRevenue": "Seller Revenue",
+      "platformFee": "Platform Fee {pct}"
+    },
+    "earningsSection": {
+      "title": "Earning Examples",
+      "subtitle": "See how much you could earn in real scenarios",
+      "price": "Item Price",
+      "quantity": "Sales Volume",
+      "quantityUnit": "{count} sales",
+      "totalRevenue": "Gross Revenue",
+      "platformFee": "Platform Fee ({pct}%)",
+      "myRevenue": "Your Earnings"
+    },
+    "stepsSection": { "title": "How It Works", "subtitle": "Get started in 4 easy steps" },
+    "cta": {
+      "title": "Start Right Now",
+      "desc": "Sign up free and start selling immediately — 70% of revenue is yours from day one.",
+      "desc2": "Upgrade to Pro/Creator to earn 80–95% revenue.",
+      "startFree": "Start Selling Free",
+      "comparePlans": "Compare Plans"
+    },
+    "steps": [
+      { "step": "01", "title": "Sign Up & List", "desc": "Register for free, upload your prompt files and descriptions to go live instantly.", "icon": "📝" },
+      { "step": "02", "title": "Review & Approval", "desc": "Prompts that meet our quality standards are listed in the marketplace. Usually within 24 hours.", "icon": "✅" },
+      { "step": "03", "title": "Start Selling", "desc": "When a buyer completes payment, files are delivered automatically.", "icon": "🚀" },
+      { "step": "04", "title": "Get Paid", "desc": "Receive 70–95% of sales via Stripe on a regular payout schedule.", "icon": "💰" }
+    ],
+    "tiers": [
+      { "plan": "Free", "price": "Free", "share": "70%", "platform": "30%", "highlights": ["Instant selling", "Basic listings"] },
+      { "plan": "Pro", "price": "$9/mo", "share": "80%", "platform": "20%", "highlights": ["+10% revenue", "Creator analytics", "Better search ranking"] },
+      { "plan": "Creator", "price": "$19/mo", "share": "90%", "platform": "10%", "highlights": ["+20% revenue", "Priority listing", "Prompt Drop", "Creator badge"] },
+      { "plan": "Premium", "price": "$29/mo", "share": "95%", "platform": "5%", "highlights": ["All Creator features", "Full library access", "Unlimited Playground"] }
+    ]
   },
   "pricing": {
     "metaTitle": "Pricing | Promto",
