@@ -5,7 +5,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import AnnouncementBanner from "@/components/home/AnnouncementBanner";
-import { announcements } from "@/lib/data/mockData";
+import { createServiceClient } from "@/lib/supabase/service";
+import type { Announcement } from "@/types";
 
 const locales = ["ko", "en"] as const;
 type Locale = (typeof locales)[number];
@@ -30,7 +31,33 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   const messages = await getMessages();
-  const pinnedAnnouncement = announcements.find((a) => a.isPinned);
+
+  let pinnedAnnouncement: Announcement | null = null;
+  try {
+    const sb = createServiceClient();
+    const { data } = await sb
+      .from("announcements")
+      .select("id, title, slug, category, summary, content, created_at, image_url, is_pinned")
+      .eq("is_pinned", true)
+      .limit(1)
+      .maybeSingle();
+
+    if (data) {
+      pinnedAnnouncement = {
+        id: data.id,
+        title: data.title,
+        slug: data.slug ?? data.id,
+        content: data.content ?? "",
+        summary: data.summary ?? undefined,
+        category: (data.category as Announcement["category"]) ?? "notice",
+        isPinned: true,
+        imageUrl: data.image_url ?? undefined,
+        createdAt: data.created_at ?? "",
+      };
+    }
+  } catch {
+    // 배너는 선택적 — 오류 무시
+  }
 
   return (
     <NextIntlClientProvider messages={messages}>
