@@ -180,7 +180,7 @@ export default function DashboardClient() {
                 <div className="text-center py-16">
                   <p className="text-4xl mb-4">📦</p>
                   <p className="text-gray-500 dark:text-gray-400 mb-6">{t("purchases.empty")}</p>
-                  <Button href="/products">{t("purchases.browse")}</Button>
+                  <Button href={`${lp}/products`}>{t("purchases.browse")}</Button>
                 </div>
               </div>
             )}
@@ -191,14 +191,14 @@ export default function DashboardClient() {
                   <h2 className="font-bold text-xl text-gray-900 dark:text-white">
                     {t("selling.title")}
                   </h2>
-                  <Button href="/sell/new" size="sm">{t("selling.addNew")}</Button>
+                  <Button href={`${lp}/sell/new`} size="sm">{t("selling.addNew")}</Button>
                 </div>
                 <div className="text-center py-16">
                   <p className="text-4xl mb-4">💰</p>
                   <p className="text-gray-500 dark:text-gray-400 mb-6 whitespace-pre-line">
                     {t("selling.empty")}
                   </p>
-                  <Button href="/sell/new">{t("selling.addFirst")}</Button>
+                  <Button href={`${lp}/sell/new`}>{t("selling.addFirst")}</Button>
                 </div>
               </div>
             )}

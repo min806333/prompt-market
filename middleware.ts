@@ -12,7 +12,8 @@ const intlMiddleware = createMiddleware({
   localeDetection: false,
 });
 
-const PROTECTED_ROUTES = ["/dashboard", "/sell/new", "/admin"];
+const PROTECTED_ROUTES = ["/dashboard", "/sell/new"];
+const ADMIN_ROUTES = ["/admin"];
 const AUTH_ROUTES = ["/auth/login", "/auth/signup"];
 
 export async function middleware(req: NextRequest) {
@@ -68,6 +69,27 @@ export async function middleware(req: NextRequest) {
     const loginUrl = new URL(`${localePath}/auth/login`, req.url);
     loginUrl.searchParams.set("redirectTo", pathnameWithoutLocale);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Admin route: require authentication + admin role
+  const isAdminRoute = ADMIN_ROUTES.some((r) =>
+    pathnameWithoutLocale.startsWith(r)
+  );
+  if (isAdminRoute) {
+    if (!user) {
+      const loginUrl = new URL(`${localePath}/auth/login`, req.url);
+      loginUrl.searchParams.set("redirectTo", pathnameWithoutLocale);
+      return NextResponse.redirect(loginUrl);
+    }
+    // Check admin role in profiles table
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if (!profile || profile.role !== "admin") {
+      return NextResponse.redirect(new URL(`${localePath}/dashboard`, req.url));
+    }
   }
 
   // Redirect authenticated users away from auth pages
