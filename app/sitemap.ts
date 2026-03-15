@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { products, categories } from "@/lib/data/mockData";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://promto.kr";
+const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.promto.kr";
 
 function bothLocales(path: string): MetadataRoute.Sitemap[number] {
   const koUrl = `${BASE}${path}`;
