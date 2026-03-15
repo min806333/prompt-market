@@ -81,7 +81,9 @@ export default function NewProductPage() {
   // Any logged-in user can sell (free plan = 70% revenue)
   const canSell = !!user;
   const revenueShare =
-    subscriptionStatus === "creator" || subscriptionStatus === "premium"
+    subscriptionStatus === "premium"
+      ? 95
+      : subscriptionStatus === "creator"
       ? 90
       : subscriptionStatus === "pro"
       ? 80

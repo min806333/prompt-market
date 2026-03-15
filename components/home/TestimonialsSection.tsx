@@ -55,8 +55,8 @@ export default function TestimonialsSection({ testimonials }: TestimonialsSectio
     <section className="py-16 bg-gray-50 dark:bg-gray-900/50 overflow-hidden">
       <style>{`
         @keyframes marquee-scroll {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0%   { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
         }
         .marquee-track {
           display: flex;
