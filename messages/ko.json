@@ -501,7 +501,10 @@
     "difficultyLabel": "난이도",
     "salesCountLabel": "판매 수",
     "testBefore": "구매 전 테스트해보기",
-    "shareBtn": "공유하기"
+    "shareBtn": "공유하기",
+    "buyError": "결제 오류가 발생했습니다. 다시 시도해주세요.",
+    "networkError": "네트워크 오류가 발생했습니다. 다시 시도해주세요.",
+    "processing": "처리 중..."
   },
   "builder": {
     "metaTitle": "프롬프트 빌더 | Promto",

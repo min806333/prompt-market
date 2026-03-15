@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
+import { PROMPT_FILES, formatPromptFile } from "@/lib/data/promptFiles";
 
 const ALLOWED_HOSTS = [
   "supabase.co",
@@ -29,19 +31,21 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
   }
 
-  const supabase = await createClient();
-
-  const { data: product, error: productError } = await supabase
+  // Query Supabase for product
+  const sb = createServiceClient();
+  const { data: product } = await sb
     .from("products")
     .select("id, title, is_free, file_url, demo_prompts")
     .eq("slug", slug)
     .single();
 
-  if (productError || !product) {
+  if (!product) {
     return NextResponse.json({ error: "상품을 찾을 수 없습니다." }, { status: 404 });
   }
 
+  // Auth check for paid products
   if (!product.is_free) {
+    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -63,7 +67,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // If file_url is set, validate domain and redirect
+  // 1) If Supabase Storage file_url exists, redirect to it
   if (product.file_url) {
     try {
       const fileUrl = new URL(product.file_url);
@@ -77,29 +81,11 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // For free products without a file_url, generate a text file from demo_prompts
-  if (product.is_free && product.demo_prompts && product.demo_prompts.length > 0) {
-    const lines: string[] = [
-      `${product.title}`,
-      `${"=".repeat(product.title.length)}`,
-      `Promto.kr — AI Prompt Marketplace`,
-      "",
-      "---",
-      "",
-    ];
-
-    product.demo_prompts.forEach((prompt: string, idx: number) => {
-      lines.push(`[Prompt ${idx + 1}]`);
-      lines.push(prompt);
-      lines.push("");
-    });
-
-    lines.push("---");
-    lines.push("더 많은 프롬프트는 https://promto.kr 에서 확인하세요.");
-
-    const textContent = lines.join("\n");
-    const filename = `${slug}-sample.txt`;
-
+  // 2) Use pre-defined full prompt content from promptFiles.ts
+  const promptFileData = PROMPT_FILES[slug];
+  if (promptFileData) {
+    const textContent = formatPromptFile(promptFileData, slug);
+    const filename = `${slug}.txt`;
     return new NextResponse(textContent, {
       status: 200,
       headers: {
@@ -110,8 +96,33 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // 3) Fallback: generate from Supabase demo_prompts
+  if (product.demo_prompts && product.demo_prompts.length > 0) {
+    const lines: string[] = [
+      product.title,
+      "=".repeat(product.title.length),
+      "Promto.kr — AI Prompt Marketplace",
+      "",
+    ];
+    product.demo_prompts.forEach((prompt: string, idx: number) => {
+      lines.push(`[${idx + 1}]`);
+      lines.push(prompt);
+      lines.push("");
+    });
+    lines.push("더 많은 프롬프트는 https://promto.kr 에서 확인하세요.");
+
+    return new NextResponse(lines.join("\n"), {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Content-Disposition": `attachment; filename="${slug}.txt"`,
+        "Cache-Control": "no-store",
+      },
+    });
+  }
+
   return NextResponse.json(
-    { error: "파일이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요." },
+    { error: "다운로드 파일이 준비되지 않았습니다." },
     { status: 404 }
   );
 }

@@ -12,8 +12,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
-import { getProductBySlug } from "@/lib/data/mockData";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { rateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const PLAN_PRICE_MAP: Record<string, string | undefined> = {
@@ -130,12 +130,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "잘못된 상품 정보입니다." }, { status: 400 });
   }
 
-  const product = getProductBySlug(productSlug);
+  // Query Supabase for product (public read, no RLS issue)
+  const sb = createServiceClient();
+  const { data: product } = await sb
+    .from("products")
+    .select("id, title, slug, short_description, price, preview_image_url, is_free, external_buy_url")
+    .eq("slug", productSlug)
+    .single();
+
   if (!product) {
     return NextResponse.json({ error: "상품을 찾을 수 없습니다." }, { status: 404 });
   }
 
-  if (product.price <= 0) {
+  if (product.is_free || product.price <= 0) {
     return NextResponse.json({ error: "무료 상품은 결제가 필요 없습니다." }, { status: 400 });
   }
 
@@ -167,8 +174,8 @@ export async function POST(req: NextRequest) {
             currency: "usd",
             product_data: {
               name: product.title,
-              description: product.shortDescription ?? undefined,
-              images: product.previewImageUrl ? [product.previewImageUrl] : [],
+              description: product.short_description ?? undefined,
+              images: product.preview_image_url ? [product.preview_image_url] : [],
             },
             unit_amount: Math.round(product.price * 100),
           },
@@ -181,6 +188,7 @@ export async function POST(req: NextRequest) {
       cancel_url: `${siteUrl}/payment/cancel?product=${productSlug}`,
       metadata: {
         productSlug,
+        productId: product.id,
         userId: user?.id ?? "",
       },
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,

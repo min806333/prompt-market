@@ -501,7 +501,10 @@
     "difficultyLabel": "Difficulty",
     "salesCountLabel": "Sales",
     "testBefore": "Test before buying",
-    "shareBtn": "Share"
+    "shareBtn": "Share",
+    "buyError": "A payment error occurred. Please try again.",
+    "networkError": "A network error occurred. Please try again.",
+    "processing": "Processing..."
   },
   "builder": {
     "metaTitle": "Prompt Builder | Promto",
