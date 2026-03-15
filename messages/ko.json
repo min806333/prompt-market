@@ -359,7 +359,11 @@
     "guideFree": "무료 사용자는 로그인 후 하루 3회 테스트 가능",
     "guidePro": "Pro 구독자는 하루 20회 테스트 가능",
     "guideApi": "API 모델: 사이트 내에서 직접 생성 (DALL-E 3, Flux, Kling Kolors, MusicGen, Kling Video)",
-    "guideCopy": "Copy 모델: 프롬프트 복사 → 외부 사이트에서 생성 (Suno, Midjourney, Runway, Pika)"
+    "guideCopy": "Copy 모델: 프롬프트 복사 → 외부 사이트에서 생성 (Suno, Midjourney, Runway, Pika)",
+    "videoGenerating": "Kling 영상 생성 중...",
+    "videoWait": "약 2~3분 소요됩니다. 페이지를 떠나지 마세요.",
+    "videoReady": "Kling 영상 생성 완료!",
+    "videoFailed": "영상 생성에 실패했습니다. 다시 시도해주세요."
   },
   "marketplace": {
     "filtersLabel": "필터",

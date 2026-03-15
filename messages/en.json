@@ -359,7 +359,11 @@
     "guideFree": "Free users: 3 tests/day after login",
     "guidePro": "Pro subscribers: 20 tests/day",
     "guideApi": "API models: generate directly on this site (DALL-E 3, Flux, Kling Kolors, MusicGen, Kling Video)",
-    "guideCopy": "Copy models: copy prompt → generate on external site (Suno, Midjourney, Runway, Pika)"
+    "guideCopy": "Copy models: copy prompt → generate on external site (Suno, Midjourney, Runway, Pika)",
+    "videoGenerating": "Generating Kling video...",
+    "videoWait": "This takes about 2–3 minutes. Please don't leave the page.",
+    "videoReady": "Kling video ready!",
+    "videoFailed": "Video generation failed. Please try again."
   },
   "marketplace": {
     "filtersLabel": "Filters",

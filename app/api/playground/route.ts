@@ -153,7 +153,7 @@ function generateKlingJWT(): string {
   return `${header}.${payload}.${sig}`;
 }
 
-async function generateVideo_Kling(prompt: string): Promise<string> {
+async function submitVideo_Kling(prompt: string): Promise<string> {
   const token = generateKlingJWT();
   const res = await fetch("https://api.klingai.com/v1/videos/text2video", {
     method: "POST",
@@ -175,21 +175,7 @@ async function generateVideo_Kling(prompt: string): Promise<string> {
   const taskId = data.data?.task_id;
   if (!taskId) throw new Error("No task ID from Kling");
 
-  for (let i = 0; i < 10; i++) {
-    await new Promise((r) => setTimeout(r, 5000));
-    const poll = await fetch(`https://api.klingai.com/v1/videos/text2video/${taskId}`, {
-      headers: { Authorization: `Bearer ${generateKlingJWT()}` },
-    });
-    if (poll.ok) {
-      const s = await poll.json() as { data?: { task_status?: string; task_result?: { videos?: { url?: string }[] } } };
-      if (s.data?.task_status === "succeed") {
-        const url = s.data?.task_result?.videos?.[0]?.url;
-        if (url) return url;
-      }
-      if (s.data?.task_status === "failed") throw new Error("Kling generation failed");
-    }
-  }
-  throw new Error("Kling timed out after 50s");
+  return taskId;
 }
 
 // ── Main handler ─────────────────────────────────────────────────────────────
@@ -364,7 +350,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Kling AI video ───────────────────────────────────────────────────────
+  // ── Kling AI video (async — submits task, client polls /api/playground/status/[taskId]) ──
   if (modelKey === "kling") {
     if (!process.env.KLING_ACCESS_KEY_ID || !process.env.KLING_ACCESS_KEY_SECRET) {
       return NextResponse.json(
@@ -373,17 +359,17 @@ export async function POST(req: NextRequest) {
       );
     }
     try {
-      const videoUrl = await generateVideo_Kling(promptText);
+      const taskId = await submitVideo_Kling(promptText);
       await logUsage();
       return NextResponse.json({
-        content: "Kling 영상 생성 완료",
-        videoUrl,
-        resultType: "video",
+        content: "Kling 영상 생성 중입니다. 약 2~3분 후 완료됩니다.",
+        resultType: "pending",
+        taskId,
         model: "kling",
         remainingToday: remaining,
       });
     } catch (e) {
-      console.error("Kling error:", e);
+      console.error("Kling submit error:", e);
       return NextResponse.json({ error: `Kling 오류: ${(e as Error).message}` }, { status: 500 });
     }
   }

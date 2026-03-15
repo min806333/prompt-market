@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Prompt } from "@/types";
@@ -14,11 +14,12 @@ interface PlaygroundClientProps {
 
 interface PlaygroundResult {
   content: string;
-  resultType: "text" | "image" | "audio" | "video" | "copy";
+  resultType: "text" | "image" | "audio" | "video" | "copy" | "pending";
   imageUrl?: string;
   audioUrl?: string;
   videoUrl?: string;
   platformUrl?: string;
+  taskId?: string;
   remainingToday: number;
 }
 
@@ -34,6 +35,32 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations("playground");
+  const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingTaskId) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/playground/status/${pendingTaskId}`);
+        const data = await res.json() as { status?: string; videoUrl?: string; error?: string };
+        if (data.status === "completed" && data.videoUrl) {
+          setPendingTaskId(null);
+          setResult(prev =>
+            prev
+              ? { ...prev, resultType: "video", videoUrl: data.videoUrl, content: t("videoReady") }
+              : null
+          );
+        } else if (data.status === "failed") {
+          setPendingTaskId(null);
+          setError(data.error ?? t("videoFailed"));
+          setResult(null);
+        }
+      } catch {
+        // network error — keep polling
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [pendingTaskId, t]);
 
   const promptText = activeInput === "sample" ? selectedSample : customText;
 
@@ -42,6 +69,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
     setLoading(true);
     setError(null);
     setResult(null);
+    setPendingTaskId(null);
 
     try {
       const res = await fetch("/api/playground", {
@@ -54,15 +82,20 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
         setError(data.error ?? "An error occurred.");
         return;
       }
-      setResult({
+      const newResult: PlaygroundResult = {
         content: data.content ?? "",
-        resultType: data.resultType ?? "text",
+        resultType: (data.resultType ?? "text") as PlaygroundResult["resultType"],
         imageUrl: data.imageUrl,
         audioUrl: data.audioUrl,
         videoUrl: data.videoUrl,
         platformUrl: data.platformUrl,
+        taskId: (data as { taskId?: string }).taskId,
         remainingToday: data.remainingToday ?? 0,
-      });
+      };
+      setResult(newResult);
+      if (newResult.resultType === "pending" && newResult.taskId) {
+        setPendingTaskId(newResult.taskId);
+      }
     } catch {
       setError("A network error occurred.");
     } finally {
@@ -163,6 +196,19 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
               Your browser does not support the video element.
             </video>
           </div>
+        </div>
+      );
+    }
+
+    if (resultType === "pending") {
+      return (
+        <div className="flex flex-col items-center justify-center text-center py-12">
+          <svg className="w-12 h-12 animate-spin text-indigo-500 mb-4" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">{t("videoGenerating")}</p>
+          <p className="text-sm text-gray-400">{t("videoWait")}</p>
         </div>
       );
     }
