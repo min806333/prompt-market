@@ -100,8 +100,9 @@ async function generateMusic_MusicGen(prompt: string): Promise<string> {
   return url;
 }
 
-// ── Kling AI image generation (Kolors) ───────────────────────────────────────
-async function generateImage_Kling(prompt: string): Promise<string> {
+// ── Kling AI image generation (Kolors) — async submit only ──────────────────
+// Returns taskId immediately; client polls /api/playground/status/[taskId]?type=image
+async function submitImage_Kling(prompt: string): Promise<string> {
   const token = generateKlingJWT();
   const res = await fetch("https://api.klingai.com/v1/images/text2image", {
     method: "POST",
@@ -118,28 +119,10 @@ async function generateImage_Kling(prompt: string): Promise<string> {
     }),
   });
   if (!res.ok) throw new Error(`Kling Image API error ${res.status}`);
-
   const data = await res.json() as { data?: { task_id?: string } };
   const taskId = data.data?.task_id;
   if (!taskId) throw new Error("No task ID from Kling Image");
-
-  for (let i = 0; i < 12; i++) {
-    await new Promise((r) => setTimeout(r, 3000));
-    const poll = await fetch(`https://api.klingai.com/v1/images/text2image/${taskId}`, {
-      headers: { Authorization: `Bearer ${generateKlingJWT()}` },
-    });
-    if (poll.ok) {
-      const s = await poll.json() as {
-        data?: { task_status?: string; task_result?: { images?: { url?: string }[] } };
-      };
-      if (s.data?.task_status === "succeed") {
-        const url = s.data?.task_result?.images?.[0]?.url;
-        if (url) return url;
-      }
-      if (s.data?.task_status === "failed") throw new Error("Kling Image generation failed");
-    }
-  }
-  throw new Error("Kling Image timed out after 36s");
+  return taskId;
 }
 
 // Kling AI JWT 생성 (Access Key ID + Secret 방식)
@@ -326,7 +309,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Kling AI image (Kolors) ──────────────────────────────────────────────
+  // ── Kling AI image (Kolors) — async ─────────────────────────────────────
   if (modelKey === "kling-image") {
     if (!process.env.KLING_ACCESS_KEY_ID || !process.env.KLING_ACCESS_KEY_SECRET) {
       return NextResponse.json(
@@ -335,12 +318,13 @@ export async function POST(req: NextRequest) {
       );
     }
     try {
-      const imageUrl = await generateImage_Kling(promptText);
+      const taskId = await submitImage_Kling(promptText);
       await logUsage();
       return NextResponse.json({
-        content: "Kling Kolors 이미지 생성 완료",
-        imageUrl,
-        resultType: "image",
+        content: "Kling 이미지 생성 중입니다. 약 20~40초 후 완료됩니다.",
+        resultType: "pending",
+        taskId,
+        taskType: "image",
         model: "kling-image",
         remainingToday: remaining,
       });

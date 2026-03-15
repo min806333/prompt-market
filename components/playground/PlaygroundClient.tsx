@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import type { Prompt } from "@/types";
 import Container from "@/components/layout/Container";
 import { useTranslations } from "next-intl";
@@ -24,6 +25,9 @@ interface PlaygroundResult {
 }
 
 export default function PlaygroundClient({ initialPrompt, availablePrompts }: PlaygroundClientProps) {
+  const params = useParams();
+  const locale = (params?.locale as string) ?? "ko";
+  const lp = locale === "ko" ? "" : `/${locale}`;
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(initialPrompt);
   const [selectedSample, setSelectedSample] = useState<string>(
     initialPrompt?.samples?.[0]?.sampleText ?? ""
@@ -36,20 +40,36 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations("playground");
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
+  const [pendingTaskType, setPendingTaskType] = useState<"image" | "video">("video");
 
   useEffect(() => {
     if (!pendingTaskId) return;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/playground/status/${pendingTaskId}`);
-        const data = await res.json() as { status?: string; videoUrl?: string; error?: string };
-        if (data.status === "completed" && data.videoUrl) {
+        const res = await fetch(
+          `/api/playground/status/${pendingTaskId}?type=${pendingTaskType}`
+        );
+        const data = await res.json() as {
+          status?: string;
+          videoUrl?: string;
+          imageUrl?: string;
+          error?: string;
+        };
+        if (data.status === "completed") {
           setPendingTaskId(null);
-          setResult(prev =>
-            prev
-              ? { ...prev, resultType: "video", videoUrl: data.videoUrl, content: t("videoReady") }
-              : null
-          );
+          if (pendingTaskType === "image" && data.imageUrl) {
+            setResult(prev =>
+              prev
+                ? { ...prev, resultType: "image", imageUrl: data.imageUrl, content: t("resultImage") }
+                : null
+            );
+          } else if (data.videoUrl) {
+            setResult(prev =>
+              prev
+                ? { ...prev, resultType: "video", videoUrl: data.videoUrl, content: t("videoReady") }
+                : null
+            );
+          }
         } else if (data.status === "failed") {
           setPendingTaskId(null);
           setError(data.error ?? t("videoFailed"));
@@ -60,7 +80,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
       }
     }, 10000);
     return () => clearInterval(interval);
-  }, [pendingTaskId, t]);
+  }, [pendingTaskId, pendingTaskType, t]);
 
   const promptText = activeInput === "sample" ? selectedSample : customText;
 
@@ -94,6 +114,8 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
       };
       setResult(newResult);
       if (newResult.resultType === "pending" && newResult.taskId) {
+        const tt = (data as { taskType?: string }).taskType;
+        setPendingTaskType(tt === "image" ? "image" : "video");
         setPendingTaskId(newResult.taskId);
       }
     } catch {
@@ -246,7 +268,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
           <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <p className="text-xs text-gray-400 mb-2">{t("likeResult")}</p>
             <Link
-              href={`/products/${selectedPrompt.slug}`}
+              href={`${lp}/products/${selectedPrompt.slug}`}
               className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors"
             >
               {t("buyAll", { count: selectedPrompt.promptCount })}
@@ -464,7 +486,7 @@ export default function PlaygroundClient({ initialPrompt, availablePrompts }: Pl
                 <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-3">{error}</p>
                 {(error.includes("로그인") || error.includes("Log in")) && (
                   <Link
-                    href="/auth/login"
+                    href={`${lp}/auth/login`}
                     className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors"
                   >
                     {t("loginBtn")}

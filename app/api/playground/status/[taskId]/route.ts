@@ -37,9 +37,18 @@ export async function GET(
     return NextResponse.json({ error: "Kling API not configured" }, { status: 503 });
   }
 
+  // ?type=image | video (default: video for backward compatibility)
+  const { searchParams } = new URL(req.url);
+  const taskType = searchParams.get("type") === "image" ? "image" : "video";
+
+  const apiUrl =
+    taskType === "image"
+      ? `https://api.klingai.com/v1/images/text2image/${taskId}`
+      : `https://api.klingai.com/v1/videos/text2video/${taskId}`;
+
   try {
     const token = generateKlingJWT();
-    const poll = await fetch(`https://api.klingai.com/v1/videos/text2video/${taskId}`, {
+    const poll = await fetch(apiUrl, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -53,22 +62,32 @@ export async function GET(
     const data = await poll.json() as {
       data?: {
         task_status?: string;
-        task_result?: { videos?: { url?: string }[] };
+        task_result?: {
+          videos?: { url?: string }[];
+          images?: { url?: string }[];
+        };
       };
     };
 
     const taskStatus = data.data?.task_status;
 
     if (taskStatus === "succeed") {
-      const videoUrl = data.data?.task_result?.videos?.[0]?.url;
-      if (videoUrl) {
-        return NextResponse.json({ status: "completed", videoUrl });
+      if (taskType === "image") {
+        const imageUrl = data.data?.task_result?.images?.[0]?.url;
+        if (imageUrl) return NextResponse.json({ status: "completed", imageUrl });
+        return NextResponse.json({ status: "failed", error: "No image URL in response" });
+      } else {
+        const videoUrl = data.data?.task_result?.videos?.[0]?.url;
+        if (videoUrl) return NextResponse.json({ status: "completed", videoUrl });
+        return NextResponse.json({ status: "failed", error: "No video URL in response" });
       }
-      return NextResponse.json({ status: "failed", error: "No video URL in response" });
     }
 
     if (taskStatus === "failed") {
-      return NextResponse.json({ status: "failed", error: "Kling video generation failed" });
+      return NextResponse.json({
+        status: "failed",
+        error: `Kling ${taskType} generation failed`,
+      });
     }
 
     return NextResponse.json({ status: "pending" });
