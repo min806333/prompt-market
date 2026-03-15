@@ -71,7 +71,7 @@ export const prompts: Prompt[] = [
 
 각 프롬프트는 Suno와 MusicGen 양쪽에서 테스트 완료된 실전형 프롬프트입니다.
 분위기, BPM, 악기 구성, 루프 포인트까지 세밀하게 설정되어 바로 복붙해서 사용할 수 있습니다.`,
-    price: 12.99,
+    price: 2.99,
     categoryId: "cat-1",
     category: categories[0],
     aiTools: ["Suno", "MusicGen"],
@@ -143,7 +143,7 @@ export const prompts: Prompt[] = [
 - 아웃트로 / 엔딩 (5종) — 여운 있는 마무리
 
 유튜브, 틱톡, 릴스에서 저작권 위험 없이 사용 가능한 AI 생성 음악 제작용 프롬프트입니다.`,
-    price: 9.99,
+    price: 2.99,
     categoryId: "cat-1",
     category: categories[0],
     aiTools: ["Suno", "MusicGen"],
@@ -217,7 +217,7 @@ export const prompts: Prompt[] = [
 - 출시 전략 및 마케팅 기획 (2종)
 
 [대괄호] 변수 치환 방식으로 설계되어 어떤 장르의 게임에도 즉시 적용 가능합니다.`,
-    price: 14.99,
+    price: 2.99,
     categoryId: "cat-2",
     category: categories[1],
     aiTools: ["ChatGPT", "Claude"],
@@ -327,7 +327,7 @@ Output in Korean with specific price points in USD and KRW.`,
 - A/B 테스트용 다중 버전 생성 프롬프트 (2종)
 
 실제 앱스토어 심사를 통과한 소개문 패턴을 기반으로 제작되었습니다.`,
-    price: 7.99,
+    price: 2.99,
     categoryId: "cat-4",
     category: categories[3],
     aiTools: ["ChatGPT", "Claude"],
@@ -497,7 +497,7 @@ Suno 또는 MusicGen에 그대로 붙여넣어 바로 사용 가능합니다.`,
 - 사이버펑크 / SF 캐릭터 (6종) — 미래적이고 세련된 디자인
 
 각 프롬프트는 --ar, --v 6, --stylize, --quality 파라미터까지 최적화되어 있어 그대로 붙여넣어 사용 가능합니다.`,
-    price: 11.99,
+    price: 2.99,
     categoryId: "cat-5",
     category: categories[4],
     aiTools: ["Midjourney", "DALL-E 3", "Stable Diffusion"],
@@ -570,7 +570,7 @@ Suno 또는 MusicGen에 그대로 붙여넣어 바로 사용 가능합니다.`,
 - 추상 아트 / 비주얼 이펙트 (3종) — 로딩 화면, 배경 영상
 
 각 프롬프트는 카메라 무브먼트, 조명 조건, 시간대, 시각 효과까지 세밀하게 설정되어 있습니다.`,
-    price: 13.99,
+    price: 2.99,
     categoryId: "cat-6",
     category: categories[5],
     aiTools: ["Runway", "Kling AI", "Pika Labs"],
