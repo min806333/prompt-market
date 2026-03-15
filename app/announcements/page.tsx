@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { announcements } from "@/lib/data/mockData";
+import { createServiceClient } from "@/lib/supabase/service";
 import Container from "@/components/layout/Container";
 import SectionTitle from "@/components/ui/SectionTitle";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
-  title: "공지사항 — PromptMarket",
-  description: "PromptMarket의 새 소식과 업데이트를 확인하세요.",
+  title: "공지사항 — Promto",
+  description: "Promto의 새 소식과 업데이트를 확인하세요.",
 };
 
 const categoryLabel: Record<string, string> = {
@@ -28,19 +30,35 @@ function formatDate(iso: string) {
   });
 }
 
-export default function AnnouncementsPage() {
-  const pinned = announcements.filter((a) => a.isPinned);
-  const rest = announcements.filter((a) => !a.isPinned);
-  const sorted = [...rest].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+export default async function AnnouncementsPage() {
+  const sb = createServiceClient();
+
+  let { data, error } = await sb
+    .from("announcements")
+    .select("*")
+    .eq("is_published", true)
+    .order("is_pinned", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    ({ data } = await sb
+      .from("announcements")
+      .select("*")
+      .order("created_at", { ascending: false }));
+  }
+
+  const items = data ?? [];
+  const pinned = items.filter((a) => a.is_pinned);
+  const rest = items.filter((a) => !a.is_pinned);
+  const getHref = (ann: { slug?: string | null; id: string }) =>
+    `/announcements/${ann.slug ?? ann.id}`;
 
   return (
     <div className="py-12">
       <Container>
         <SectionTitle
           title="공지사항"
-          subtitle="PromptMarket의 새 소식과 업데이트를 확인하세요"
+          subtitle="Promto의 새 소식과 업데이트를 확인하세요"
           className="mb-10"
         />
 
@@ -51,15 +69,15 @@ export default function AnnouncementsPage() {
               {pinned.map((ann) => (
                 <Link
                   key={ann.id}
-                  href={`/announcements/${ann.slug}`}
+                  href={getHref(ann)}
                   className="flex items-start justify-between gap-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-2xl px-6 py-4 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors group"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${categoryColor[ann.category]}`}>
-                        {categoryLabel[ann.category]}
+                      <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${categoryColor[ann.category] ?? ""}`}>
+                        {categoryLabel[ann.category] ?? ann.category}
                       </span>
-                      <span className="text-xs text-gray-400">{formatDate(ann.createdAt)}</span>
+                      <span className="text-xs text-gray-400">{formatDate(ann.created_at)}</span>
                     </div>
                     <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                       {ann.title}
@@ -78,18 +96,18 @@ export default function AnnouncementsPage() {
         )}
 
         <div className="divide-y divide-gray-100 dark:divide-gray-800">
-          {sorted.map((ann) => (
+          {rest.map((ann) => (
             <Link
               key={ann.id}
-              href={`/announcements/${ann.slug}`}
+              href={getHref(ann)}
               className="flex items-start justify-between gap-4 py-5 hover:bg-gray-50 dark:hover:bg-gray-900/50 -mx-4 px-4 rounded-xl transition-colors group"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${categoryColor[ann.category]}`}>
-                    {categoryLabel[ann.category]}
+                  <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${categoryColor[ann.category] ?? ""}`}>
+                    {categoryLabel[ann.category] ?? ann.category}
                   </span>
-                  <span className="text-xs text-gray-400">{formatDate(ann.createdAt)}</span>
+                  <span className="text-xs text-gray-400">{formatDate(ann.created_at)}</span>
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                   {ann.title}
@@ -103,7 +121,7 @@ export default function AnnouncementsPage() {
               </svg>
             </Link>
           ))}
-          {sorted.length === 0 && !pinned.length && (
+          {items.length === 0 && (
             <p className="text-gray-400 text-center py-16">공지사항이 없습니다.</p>
           )}
         </div>
