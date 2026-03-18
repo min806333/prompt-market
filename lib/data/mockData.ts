@@ -669,7 +669,7 @@ Kling AI Playground에서 바로 테스트 가능합니다.`,
     samples: [
       {
         id: "s8-1", promptId: "prod-8", sortOrder: 1,
-        sampleText: "Vertical 9:16 YouTube Shorts intro, Korean tech startup atmosphere, young creator at modern desk with multiple glowing screens, neon purple and indigo ambient lighting, slow cinematic zoom in, Korean text overlay '나만의 AI 프롬프트' appearing with particle effect, dynamic and energetic, 6 seconds, 4K cinematic quality",
+        sampleText: "Vertical 9:16 cinematic short video, indie Korean game developer working late at night with multiple glowing screens showing code and game UI, neon purple and blue ambient lighting, lo-fi aesthetic, fast-paced dynamic editing cuts, bold Korean text '오늘도 혼자 만든다' fades in center screen with white glow, motivational and relatable vibe, YouTube Shorts style, 15 seconds, 4K cinematic quality",
       },
       {
         id: "s8-2", promptId: "prod-8", sortOrder: 2,
