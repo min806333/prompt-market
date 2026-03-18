@@ -147,7 +147,7 @@ async function submitVideo_Kling(prompt: string): Promise<string> {
     body: JSON.stringify({
       model_name: "kling-v1",
       prompt,
-      duration: "5",
+      duration: "10",
       aspect_ratio: "16:9",
       mode: "std",
     }),

@@ -669,7 +669,7 @@ Kling AI Playground에서 바로 테스트 가능합니다.`,
     samples: [
       {
         id: "s8-1", promptId: "prod-8", sortOrder: 1,
-        sampleText: "Vertical 9:16 cinematic short video, indie Korean game developer working late at night with multiple glowing screens showing code and game UI, neon purple and blue ambient lighting, lo-fi aesthetic, fast-paced dynamic editing cuts, bold Korean text '오늘도 혼자 만든다' fades in center screen with white glow, motivational and relatable vibe, YouTube Shorts style, 15 seconds, 4K cinematic quality",
+        sampleText: "Vertical 9:16 cinematic short video, indie Korean game developer working late at night with multiple glowing screens showing code and game UI, neon purple and blue ambient lighting, lo-fi aesthetic, fast-paced dynamic editing cuts, bold Korean text '오늘도 혼자 만든다' fades in center screen with white glow, motivational and relatable vibe, YouTube Shorts style, 10 seconds, 4K cinematic quality",
       },
       {
         id: "s8-2", promptId: "prod-8", sortOrder: 2,
@@ -685,7 +685,7 @@ Kling AI Playground에서 바로 테스트 가능합니다.`,
       },
       {
         id: "s8-5", promptId: "prod-8", sortOrder: 5,
-        sampleText: "Vertical 9:16 motivational YouTube Shorts, timelapse of indie game developer working late at night, multiple screens with code and game assets, neon city view through window, Korean text '혼자서도 만들 수 있다' appearing boldly, inspiring and cinematic, 12 seconds, 4K",
+        sampleText: "Vertical 9:16 motivational YouTube Shorts, timelapse of indie game developer working late at night, multiple screens with code and game assets, neon city view through window, Korean text '혼자서도 만들 수 있다' appearing boldly, inspiring and cinematic, 10 seconds, 4K",
       },
     ],
     exampleResults: [
