@@ -624,6 +624,77 @@ Suno 또는 MusicGen에 그대로 붙여넣어 바로 사용 가능합니다.`,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PROD-8: 유튜브 쇼츠 한국어 소개 영상 프롬프트
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: "prod-8",
+    title: "유튜브 쇼츠 한국어 소개 영상 프롬프트 20종",
+    slug: "youtube-shorts-korean-intro-video-prompts",
+    shortDescription: "Kling AI로 한국어 유튜브 쇼츠·릴스 소개 영상을 바로 생성하는 프롬프트 20종",
+    fullDescription: `Kling AI에 바로 붙여넣어 한국어 유튜브 쇼츠 소개 영상을 생성하는 프롬프트 20종 모음입니다.
+
+포함 유형:
+- 브랜드/서비스 소개 인트로 (5종) — 로고 리빌, 텍스트 오버레이
+- 인디 크리에이터 소개 (5종) — 작업 환경, 창작 과정
+- 제품/앱 데모 스타일 (5종) — UI 플로팅, 화면 전환
+- 동기부여/성공 스토리 (5종) — 드라마틱한 연출
+
+모든 프롬프트는 9:16 세로 비율(쇼츠/릴스 최적화), 6~15초 분량으로 설계되어 있습니다.
+Kling AI Playground에서 바로 테스트 가능합니다.`,
+    price: 2.99,
+    categoryId: "cat-6",
+    category: categories[5],
+    aiTools: ["Kling AI"],
+    difficulty: "beginner",
+    promptCount: 20,
+    previewImageUrl: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=80",
+    tags: ["유튜브쇼츠", "한국어", "소개영상", "KlingAI", "릴스", "브랜드영상"],
+    version: "1.0",
+    isFeatured: true,
+    isFree: false,
+    isBundle: false,
+    isLimitedDrop: false,
+    status: "approved",
+    salesCount: 0,
+    ratingAvg: 0,
+    reviewCount: 0,
+    fileUrls: [],
+    usageTips: [
+      "Playground에서 이 상품 선택 후 Kling Video 모델을 선택해 바로 테스트하세요.",
+      "[브랜드명], [서비스명] 등 대괄호 항목을 실제 내용으로 교체하면 더 좋은 결과가 나옵니다.",
+      "6초 프롬프트는 로고/인트로 컷으로, 15초 프롬프트는 제품 소개 전체 영상으로 활용하세요.",
+    ],
+    samples: [
+      {
+        id: "s8-1", promptId: "prod-8", sortOrder: 1,
+        sampleText: "Vertical 9:16 YouTube Shorts intro, Korean tech startup atmosphere, young creator at modern desk with multiple glowing screens, neon purple and indigo ambient lighting, slow cinematic zoom in, Korean text overlay '나만의 AI 프롬프트' appearing with particle effect, dynamic and energetic, 6 seconds, 4K cinematic quality",
+      },
+      {
+        id: "s8-2", promptId: "prod-8", sortOrder: 2,
+        sampleText: "Vertical 9:16 brand reveal video, dark background with deep purple gradient, lightning bolt logo animation, bold Korean text 'PROMTO' revealed with light streak effect, subtitle '인디 크리에이터를 위한 AI 프롬프트 마켓' fades in below, dramatic and premium feel, 8 seconds, cinematic",
+      },
+      {
+        id: "s8-3", promptId: "prod-8", sortOrder: 3,
+        sampleText: "Vertical 9:16 product showcase shorts, holographic UI cards floating in dark space, Korean marketplace interface with product cards glowing purple and blue, smooth scroll animation revealing prompt products, futuristic digital aesthetic, 10 seconds, high quality render",
+      },
+      {
+        id: "s8-4", promptId: "prod-8", sortOrder: 4,
+        sampleText: "Vertical 9:16 creator success story, Korean content creator at desk celebrating in front of laptop, screen showing revenue dashboard with upward graph, golden confetti particles falling, warm golden hour window lighting, authentic joy and excitement, 8 seconds, realistic cinematic",
+      },
+      {
+        id: "s8-5", promptId: "prod-8", sortOrder: 5,
+        sampleText: "Vertical 9:16 motivational YouTube Shorts, timelapse of indie game developer working late at night, multiple screens with code and game assets, neon city view through window, Korean text '혼자서도 만들 수 있다' appearing boldly, inspiring and cinematic, 12 seconds, 4K",
+      },
+    ],
+    exampleResults: [
+      "Kling AI로 생성 시 평균 1~2분 내 9:16 세로 영상 완성",
+      "유튜브 쇼츠, 인스타그램 릴스, 틱톡에 바로 업로드 가능한 포맷",
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
 ];
 
 // Legacy alias
