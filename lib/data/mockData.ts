@@ -6,7 +6,7 @@ export const categories: Category[] = [
     name: "게임 음악",
     slug: "game-music",
     description: "BGM, OST, 효과음 등 게임 음악 제작용 프롬프트",
-    icon: "🎵",
+    icon: "music",
     sortOrder: 1,
   },
   {
@@ -14,7 +14,7 @@ export const categories: Category[] = [
     name: "기획/문서",
     slug: "planning-docs",
     description: "게임 기획서, 소개문, UI 텍스트 등 문서 작성 프롬프트",
-    icon: "📄",
+    icon: "doc",
     sortOrder: 2,
   },
   {
@@ -22,7 +22,7 @@ export const categories: Category[] = [
     name: "영상/콘텐츠",
     slug: "video-content",
     description: "유튜브, 매드무비, 숏폼 콘텐츠 제작 프롬프트",
-    icon: "🎬",
+    icon: "video",
     sortOrder: 3,
   },
   {
@@ -30,7 +30,7 @@ export const categories: Category[] = [
     name: "앱/게임 소개",
     slug: "app-description",
     description: "앱스토어, 구글플레이 소개문 자동 생성 프롬프트",
-    icon: "📱",
+    icon: "app",
     sortOrder: 4,
   },
   {
@@ -38,7 +38,7 @@ export const categories: Category[] = [
     name: "AI 이미지",
     slug: "ai-image",
     description: "Midjourney, DALL-E, Stable Diffusion 이미지 생성 프롬프트",
-    icon: "🎨",
+    icon: "image",
     sortOrder: 5,
   },
   {
@@ -46,7 +46,7 @@ export const categories: Category[] = [
     name: "AI 영상",
     slug: "ai-video",
     description: "Runway, Sora, Kling, Pika 동영상 생성 프롬프트",
-    icon: "🎥",
+    icon: "film",
     sortOrder: 6,
   },
 ];

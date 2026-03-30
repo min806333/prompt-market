@@ -14,7 +14,9 @@ export default function HeroSection() {
       <Container>
         <div className="relative z-10 py-24 md:py-32 text-center max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-900/60 border border-brand-700/50 text-brand-300 text-sm font-medium mb-8">
-            <span>⚡</span>
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
             <span>{t("badge")}</span>
           </div>
 

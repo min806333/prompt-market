@@ -65,8 +65,10 @@ export default function Header() {
         ) : (
           <div className="flex items-center justify-between h-16">
             <Link href={lp || "/"} className="flex items-center gap-2 shrink-0">
-              <span className="text-2xl">⚡</span>
-              <span className="font-bold text-lg text-gray-900 dark:text-white">PromptMarket</span>
+              <svg className="w-5 h-5 text-indigo-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+              <span className="font-bold text-lg text-gray-900 dark:text-white">Promto</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-1">
@@ -142,28 +144,28 @@ export default function Header() {
                             onClick={() => setProfileOpen(false)}
                             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                           >
-                            <span>🛍️</span> {tAuth("mypage")}
+                            {tAuth("mypage")}
                           </Link>
                           <Link
                             href={`${lp}/dashboard/purchases`}
                             onClick={() => setProfileOpen(false)}
                             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                           >
-                            <span>📦</span> {tAuth("purchaseHistory")}
+                            {tAuth("purchaseHistory")}
                           </Link>
                           <Link
                             href={`${lp}/sell`}
                             onClick={() => setProfileOpen(false)}
                             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                           >
-                            <span>💰</span> {tAuth("myProducts")}
+                            {tAuth("myProducts")}
                           </Link>
                           <Link
                             href={`${lp}/dashboard/settings`}
                             onClick={() => setProfileOpen(false)}
                             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                           >
-                            <span>⚙️</span> {tAuth("settings")}
+                            {tAuth("settings")}
                           </Link>
                           {isAdmin && (
                             <Link
@@ -171,7 +173,7 @@ export default function Header() {
                               onClick={() => setProfileOpen(false)}
                               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
                             >
-                              <span>🛡️</span> {tAuth("admin")}
+                              {tAuth("admin")}
                             </Link>
                           )}
                           <div className="border-t border-gray-100 dark:border-gray-800 mt-1 pt-1">
@@ -179,7 +181,7 @@ export default function Header() {
                               onClick={handleSignOut}
                               className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                             >
-                              <span>🚪</span> {tAuth("logout")}
+                              {tAuth("logout")}
                             </button>
                           </div>
                         </div>

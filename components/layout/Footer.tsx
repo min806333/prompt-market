@@ -55,8 +55,10 @@ export default function Footer() {
         <div className="py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10">
           <div className="md:col-span-1">
             <Link href={lp || "/"} className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">⚡</span>
-              <span className="font-bold text-lg text-white">PromptMarket</span>
+              <svg className="w-5 h-5 text-indigo-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+              <span className="font-bold text-lg text-white">Promto</span>
             </Link>
             <p className="text-sm leading-relaxed">
               {t("tagline")}
